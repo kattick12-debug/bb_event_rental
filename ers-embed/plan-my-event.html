@@ -127,6 +127,19 @@
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; font-weight: 800; padding: .7rem 1.2rem; border-radius: 999px; box-shadow: 3px 3px 0 var(--orange); opacity: 0; transition: opacity .2s; pointer-events: none; }
   .toast.show { opacity: 1; }
   @media print { .bar, .progress, .nav, .actions, .toast { display: none !important; } .card { box-shadow: none; } }
+
+  /* Fallback if ERS serves this page on its "classic" template (old header + narrow 960px box):
+     hide the classic chrome and let the planner fill the page. Harmless on a blank page. */
+  .content_top, .content_bottom, .footerSpace { display: none !important; }
+  .content_mid, .content_holder, .content_holder > div { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; background: none !important; position: static !important; left: auto !important; }
+  .bar .logo { margin: 0 !important; display: flex !important; }
+  .bar h1 { color: #fff !important; margin: 0 !important; }
+  /* "html body" outranks the theme's "html, body { background: #fff !important }" and "body { font-family: Lato; text-align: center }" */
+  html:root, html body { background: var(--bg) !important; }
+  html body { font-family: "Nunito", system-ui, sans-serif !important; text-align: left !important; }
+  h1, h2, h3 { font-family: "Fredoka", "Nunito", sans-serif !important; text-transform: none !important; letter-spacing: normal !important; }
+  .card h2 { color: var(--ink); }
+  p { line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -382,7 +395,7 @@
         <h2>Your party plan 🎉</h2>
         <p class="lead">Here's a rough estimate and everything to take care of before the big day.</p>
         <div class="estimate">
-          <div><small>Estimated rentals</small><div class="amt">${range}</div><small>Plus tax. Free delivery & setup within 20 miles.</small></div>
+          <div><small>Estimated rentals</small><div class="amt">${range}</div><small>Plus tax. Free delivery & setup within 30 miles.</small></div>
           <div style="font-size:3rem">${park ? '🌳' : '🏡'}</div>
         </div>
         <div class="lines">${items.map(i => `<div><span>${i.emoji} ${i.name}</span><span>${i.price ? money(i.price) : 'from ' + money(i.from)}</span></div>`).join('')}
@@ -393,7 +406,7 @@
           ${f.area ? `<span>📐 ~${f.area.toLocaleString()} sq ft needed</span>` : ''}
           <span>${S.spaceChecked ? '✅ Space checked' : '⏳ Space not checked yet'}</span>
         </div>
-        <p class="fine">Estimate uses our starting prices; exact prices depend on the units you pick. Delivery beyond 20 miles may add a fee.</p>
+        <p class="fine">Estimate uses our starting prices; exact prices depend on the units you pick. Delivery beyond 30 miles may add a fee.</p>
 
         <div class="section-title">✅ Your to-do checklist</div>
         <ul class="checklist">${C.map(c => `<li class="${S.done[c[0]] ? 'done' : ''}"><label><input type="checkbox" data-c="${c[0]}" ${S.done[c[0]] ? 'checked' : ''}><span>${c[1]}<small>${c[2]}</small></span></label></li>`).join('')}</ul>

@@ -100,6 +100,17 @@
   .banner { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; background: var(--ink); color: #fff; font-weight: 800; font-size: .9rem; padding: .5rem 1rem; border-radius: 999px; box-shadow: 3px 3px 0 var(--orange); white-space: nowrap; pointer-events: none; transition: opacity .2s; }
   .banner[hidden] { display: none; }
   @media (max-width: 640px) { .banner { top: auto; bottom: 12px; font-size: .8rem; } .legend { display: none; } }
+
+  /* Fallback if ERS serves this page on its "classic" template (old header + narrow 960px box):
+     hide the classic chrome and let the tool fill the page. Harmless on a blank page. */
+  .content_top, .content_bottom, .footerSpace { display: none !important; }
+  .content_mid, .content_holder, .content_holder > div { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; background: none !important; position: static !important; left: auto !important; }
+  .bar .logo { margin: 0 !important; display: flex !important; }
+  .bar h1 { color: #fff !important; margin: 0 !important; }
+  /* "html body" outranks the theme's "html, body { background: #fff !important }" and "body { font-family: Lato; text-align: center }" */
+  html:root, html body { background: var(--bg) !important; }
+  html body { font-family: "Nunito", system-ui, sans-serif !important; text-align: left !important; }
+  h1, h2, h3 { font-family: "Fredoka", "Nunito", sans-serif !important; text-transform: none !important; letter-spacing: normal !important; }
   .leaflet-container.placing, .leaflet-container.placing .leaflet-interactive { cursor: crosshair !important; }
 
   /* Leaflet bits */
