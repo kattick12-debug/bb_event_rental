@@ -180,6 +180,35 @@
   .bb-pkgs-more { text-align: center; margin-top: 2rem !important; font-weight: 800; }
   .bb-pkgs-more a { color: var(--blue); }
 
+  /* Kids' age finder */
+  .bb-age-band { background: #fff; border-block: 3px solid var(--ink); }
+  .bb-age-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: .7rem; margin-bottom: 1.6rem; }
+  .bb .bb-age-tab { font: inherit; cursor: pointer; display: flex; align-items: center; gap: .55rem; padding: .6rem 1.1rem; border: 3px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: transform .12s, background .12s; }
+  .bb .bb-age-tab:hover { transform: translateY(-2px); }
+  .bb .bb-age-tab.on { background: var(--orange); color: #fff; }
+  .bb-age-tab .bb-age-emo { font-size: 1.4rem; line-height: 1; }
+  .bb-age-tab b { font-family: "Fredoka"; font-weight: 600; font-size: 1.05rem; }
+  .bb-age-tab small { font-weight: 800; opacity: .8; }
+  .bb .bb-age-tip { max-width: 760px; margin: 0 auto 1.4rem; text-align: center; color: var(--muted); font-size: 1.02rem; }
+  .bb-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
+  .bb-unit { display: flex; flex-direction: column; background: #fff; border: 3px solid var(--ink); border-radius: 20px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+  .bb-unit:hover { transform: translateY(-5px); box-shadow: 6px 6px 0 var(--ink); }
+  .bb-unit-img { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: .8rem; background: radial-gradient(ellipse at 50% 35%, #fff 0%, #dff1fb 75%); border-bottom: 3px solid var(--ink); }
+  .bb .bb-unit-img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+  .bb-unit-body { display: flex; flex-direction: column; gap: .55rem; padding: .9rem 1rem 1rem; flex: 1; }
+  .bb .bb-unit h3 { font-size: 1.05rem; line-height: 1.2; font-weight: 600; }
+  .bb-unit-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .bb-unit-tags span { font-size: .75rem; font-weight: 800; padding: .15rem .55rem; border-radius: 999px; background: var(--gold-lt); }
+  .bb-unit-tags .wet { background: #d9f3fd; }
+  .bb .bb-unit-limits li { display: flex; justify-content: space-between; gap: .5rem; font-size: .85rem; color: var(--muted); border-bottom: 1px dashed #d6e6ee; padding: .15rem 0; }
+  .bb-unit-limits b { color: var(--ink); font-weight: 800; }
+  .bb-unit-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: .4rem; }
+  .bb-unit-price { font-family: "Fredoka"; font-weight: 700; font-size: 1.15rem; }
+  .bb-unit-cta { color: var(--orange); font-weight: 800; font-size: .9rem; }
+  .bb .bb-age-more { text-align: center; margin-top: 1.2rem; font-weight: 800; }
+  .bb .bb-age-more a, .bb .bb-age-note a { color: var(--blue); text-decoration: underline; }
+  .bb .bb-age-note { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 1.4rem; }
+
   /* Local (town-specific) section */
   .bb-local-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; align-items: center; }
   .bb .bb-local-intro { font-size: 1.1rem; color: var(--muted); margin-bottom: .9rem; }
@@ -424,6 +453,34 @@
     </div>
   </section>
 </div>
+
+<!-- KIDS' AGE FINDER: units and limits come from towns/inventory.json -->
+<div class="bb-band bb-age-band">
+  <section class="bb-sec" id="bb-age">
+    <div class="bb-wrap">
+      <div class="bb-head"><div class="bb-eyebrow">Find the right fit</div><h2 class="bb-h2">What's best for your kids' ages?</h2><p>Pick an age group to see the units rated for it, with their size limits.</p></div>
+      <div class="bb-age-tabs" role="tablist" aria-label="Age groups">{{AGE_TABS}}</div>
+      {{AGE_PANELS}}
+      <p class="bb-age-note">Age ratings come from each unit's specs. Height, weight and rider limits are printed on every unit, and our crew goes over them at setup. Not sure what fits? Call <a href="tel:5133051758">(513) 305-1758</a>.</p>
+    </div>
+  </section>
+</div>
+<script>
+  (function () {
+    var root = document.getElementById('bb-age'); if (!root) return;
+    var tabs = root.querySelectorAll('[role="tab"]');
+    Array.prototype.forEach.call(tabs, function (t) {
+      t.addEventListener('click', function () {
+        Array.prototype.forEach.call(tabs, function (x) {
+          var on = x === t;
+          x.setAttribute('aria-selected', on ? 'true' : 'false');
+          x.classList.toggle('on', on);
+          document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+        });
+      });
+    });
+  })();
+</script>
 
 <div class="bb-band">
   <!-- SAFETY -->

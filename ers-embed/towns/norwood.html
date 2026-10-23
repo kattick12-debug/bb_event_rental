@@ -180,6 +180,35 @@
   .bb-pkgs-more { text-align: center; margin-top: 2rem !important; font-weight: 800; }
   .bb-pkgs-more a { color: var(--blue); }
 
+  /* Kids' age finder */
+  .bb-age-band { background: #fff; border-block: 3px solid var(--ink); }
+  .bb-age-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: .7rem; margin-bottom: 1.6rem; }
+  .bb .bb-age-tab { font: inherit; cursor: pointer; display: flex; align-items: center; gap: .55rem; padding: .6rem 1.1rem; border: 3px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: transform .12s, background .12s; }
+  .bb .bb-age-tab:hover { transform: translateY(-2px); }
+  .bb .bb-age-tab.on { background: var(--orange); color: #fff; }
+  .bb-age-tab .bb-age-emo { font-size: 1.4rem; line-height: 1; }
+  .bb-age-tab b { font-family: "Fredoka"; font-weight: 600; font-size: 1.05rem; }
+  .bb-age-tab small { font-weight: 800; opacity: .8; }
+  .bb .bb-age-tip { max-width: 760px; margin: 0 auto 1.4rem; text-align: center; color: var(--muted); font-size: 1.02rem; }
+  .bb-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
+  .bb-unit { display: flex; flex-direction: column; background: #fff; border: 3px solid var(--ink); border-radius: 20px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+  .bb-unit:hover { transform: translateY(-5px); box-shadow: 6px 6px 0 var(--ink); }
+  .bb-unit-img { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: .8rem; background: radial-gradient(ellipse at 50% 35%, #fff 0%, #dff1fb 75%); border-bottom: 3px solid var(--ink); }
+  .bb .bb-unit-img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+  .bb-unit-body { display: flex; flex-direction: column; gap: .55rem; padding: .9rem 1rem 1rem; flex: 1; }
+  .bb .bb-unit h3 { font-size: 1.05rem; line-height: 1.2; font-weight: 600; }
+  .bb-unit-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .bb-unit-tags span { font-size: .75rem; font-weight: 800; padding: .15rem .55rem; border-radius: 999px; background: var(--gold-lt); }
+  .bb-unit-tags .wet { background: #d9f3fd; }
+  .bb .bb-unit-limits li { display: flex; justify-content: space-between; gap: .5rem; font-size: .85rem; color: var(--muted); border-bottom: 1px dashed #d6e6ee; padding: .15rem 0; }
+  .bb-unit-limits b { color: var(--ink); font-weight: 800; }
+  .bb-unit-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: .4rem; }
+  .bb-unit-price { font-family: "Fredoka"; font-weight: 700; font-size: 1.15rem; }
+  .bb-unit-cta { color: var(--orange); font-weight: 800; font-size: .9rem; }
+  .bb .bb-age-more { text-align: center; margin-top: 1.2rem; font-weight: 800; }
+  .bb .bb-age-more a, .bb .bb-age-note a { color: var(--blue); text-decoration: underline; }
+  .bb .bb-age-note { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 1.4rem; }
+
   /* Local (town-specific) section */
   .bb-local-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; align-items: center; }
   .bb .bb-local-intro { font-size: 1.1rem; color: var(--muted); margin-bottom: .9rem; }
@@ -424,6 +453,345 @@
     </div>
   </section>
 </div>
+
+<!-- KIDS' AGE FINDER: units and limits come from towns/inventory.json -->
+<div class="bb-band bb-age-band">
+  <section class="bb-sec" id="bb-age">
+    <div class="bb-wrap">
+      <div class="bb-head"><div class="bb-eyebrow">Find the right fit</div><h2 class="bb-h2">What's best for your kids' ages?</h2><p>Pick an age group to see the units rated for it, with their size limits.</p></div>
+      <div class="bb-age-tabs" role="tablist" aria-label="Age groups"><button class="bb-age-tab on" role="tab" id="bb-age-tab-toddler" aria-controls="bb-age-toddler" aria-selected="true"><span class="bb-age-emo">🧸</span><b>Toddlers</b><small>2–4</small></button><button class="bb-age-tab" role="tab" id="bb-age-tab-kids" aria-controls="bb-age-kids" aria-selected="false"><span class="bb-age-emo">🎈</span><b>Kids</b><small>5–8</small></button><button class="bb-age-tab" role="tab" id="bb-age-tab-tweens" aria-controls="bb-age-tweens" aria-selected="false"><span class="bb-age-emo">⚡</span><b>Tweens</b><small>9–12</small></button><button class="bb-age-tab" role="tab" id="bb-age-tab-teens" aria-controls="bb-age-teens" aria-selected="false"><span class="bb-age-emo">🏆</span><b>Teens &amp; adults</b><small>13+</small></button></div>
+      <div class="bb-age-panel" role="tabpanel" id="bb-age-toddler" aria-labelledby="bb-age-tab-toddler">
+        <p class="bb-age-tip">🧸 Little ones do best in a standard bounce house or a combo with a gentle slide. Always keep an adult watching, and keep toddlers separate from bigger kids.</p>
+        <div class="bb-units">
+        <a class="bb-unit" href="/items/rainbow_castle_bounce_deluxe/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260222_183842_Gallery.jpg" alt="Rainbow Castle Bounce Deluxe" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Rainbow Castle Bounce Deluxe</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$225</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/palm_tree_bounce_castle/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_132927_Photo-Editor.jpg" alt="Palm Tree Bounce Castle Deluxe" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Palm Tree Bounce Castle Deluxe</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$225</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/titanium_dual_lane_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_153854_Chrome.jpg" alt="Titanium Dual Lane Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Titanium Dual Lane Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/shark_attack_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/1778208095160.png" alt="Shark Attack Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Shark Attack Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 2+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/giant_jenga/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/lv_0_20260819132537-(1).jpg" alt="Giant Jenga" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Giant Jenga</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$40</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/giant_4_to_score/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260827_094819_Gmail.jpg" alt="Giant 4 To Score" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Giant 4 To Score</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$40</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/soccer_kick_air_frame_game/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_163232_Photo-Editor.jpg" alt="Soccer Kick Air Frame Game" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Soccer Kick Air Frame Game</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$60</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/18_rainbow_rapids_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260408_061501_Gallery.jpg" alt="18' Rainbow Rapids Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>18' Rainbow Rapids Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3 to adult</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        </div>
+        <p class="bb-age-more">Showing 8 of 17 units for this age. <a href="/category">See all rentals →</a></p>
+      </div>
+      <div class="bb-age-panel" role="tabpanel" id="bb-age-kids" aria-labelledby="bb-age-tab-kids" hidden>
+        <p class="bb-age-tip">🎈 The sweet spot for combos and slides. Group kids by size so the little ones don't jump with the big ones.</p>
+        <div class="bb-units">
+        <a class="bb-unit" href="/items/titanium_dual_lane_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_153854_Chrome.jpg" alt="Titanium Dual Lane Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Titanium Dual Lane Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/rainbow_castle_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_131947_Chrome(1).jpg" alt="Rainbow Castle Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Rainbow Castle Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/shark_attack_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/1778208095160.png" alt="Shark Attack Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Shark Attack Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 2+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/13_ocean_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/613ImzrqGSL.jpg" alt="13' Ocean Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>13' Ocean Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$300</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/19_lava_wave_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260222_183946_Gallery.jpg" alt="19' Lava Wave Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>19' Lava Wave Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/18_rainbow_rapids_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260408_061501_Gallery.jpg" alt="18' Rainbow Rapids Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>18' Rainbow Rapids Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3 to adult</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/rainbow_castle_bounce_deluxe/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260222_183842_Gallery.jpg" alt="Rainbow Castle Bounce Deluxe" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Rainbow Castle Bounce Deluxe</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$225</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/palm_tree_bounce_castle/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_132927_Photo-Editor.jpg" alt="Palm Tree Bounce Castle Deluxe" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Palm Tree Bounce Castle Deluxe</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$225</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        </div>
+        <p class="bb-age-more">Showing 8 of 22 units for this age. <a href="/category">See all rentals →</a></p>
+      </div>
+      <div class="bb-age-panel" role="tabpanel" id="bb-age-tweens" aria-labelledby="bb-age-tab-tweens" hidden>
+        <p class="bb-age-tip">⚡ Bigger kids love racing: obstacle courses, tall slides and games burn off the most energy.</p>
+        <div class="bb-units">
+        <a class="bb-unit" href="/items/30_7_element_retro_inflatable_obstacle_course/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260223_140807_Chrome.jpg" alt="30' 7-Element Retro Obstacle Course" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>30' 7-Element Retro Obstacle Course</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$350</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/19_lava_wave_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260222_183946_Gallery.jpg" alt="19' Lava Wave Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>19' Lava Wave Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/18_rainbow_rapids_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260408_061501_Gallery.jpg" alt="18' Rainbow Rapids Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>18' Rainbow Rapids Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3 to adult</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/13_ocean_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/613ImzrqGSL.jpg" alt="13' Ocean Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>13' Ocean Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 4+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$300</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/hoop_shot_basketball/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260306_085208_Photo-Editor-(1).jpg" alt="Hoop Shot Basketball" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Hoop Shot Basketball</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$150</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/football_challenge/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260306_085441_Photo-Editor.jpg" alt="Football Challenge" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Football Challenge</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$100</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/soccer_kick_air_frame_game/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_163232_Photo-Editor.jpg" alt="Soccer Kick Air Frame Game" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Soccer Kick Air Frame Game</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$60</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/titanium_dual_lane_combo_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260315_153854_Chrome.jpg" alt="Titanium Dual Lane Combo Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Titanium Dual Lane Combo Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3+</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        </div>
+        <p class="bb-age-more">Showing 8 of 22 units for this age. <a href="/category">See all rentals →</a></p>
+      </div>
+      <div class="bb-age-panel" role="tabpanel" id="bb-age-teens" aria-labelledby="bb-age-tab-teens" hidden>
+        <p class="bb-age-tip">🏆 Only units rated for teens and adults are shown here. Check each unit's height and weight limits.</p>
+        <div class="bb-units">
+        <a class="bb-unit" href="/items/18_rainbow_rapids_slide_wet-dry/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/items/Screenshot_20260408_061501_Gallery.jpg" alt="18' Rainbow Rapids Slide Wet/Dry" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>18' Rainbow Rapids Slide Wet/Dry</h3>
+            <div class="bb-unit-tags"><span>Ages 3 to adult</span><span class="wet">💧 Wet or dry</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/40_jungle_trek_obstacle_course/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20230508-150803.png" alt="40' Jungle Trek Obstacle Course" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>40' Jungle Trek Obstacle Course</h3>
+            <div class="bb-unit-tags"><span>Teens &amp; adults</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$500</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/40_nuclear_elevation_obstacle_course/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20240419-015118-removebg-preview.png" alt="40' Nuclear Elevation Obstacle Course" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>40' Nuclear Elevation Obstacle Course</h3>
+            <div class="bb-unit-tags"><span>Teens &amp; adults</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$500</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/25_x_25_gigantic_dance_dome/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20200621-162909_2-removebg-preview.png" alt="25' X 25' Gigantic Dance Dome" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>25' X 25' Gigantic Dance Dome</h3>
+            <div class="bb-unit-tags"><span>All ages</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$400</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/inflatable_double_lane_axe_throw/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20250512-135132.png" alt="Inflatable Double Lane Axe Throw" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Inflatable Double Lane Axe Throw</h3>
+            <div class="bb-unit-tags"><span>All ages</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$300</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/gigantic_soccer_darts/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20200625-002237_2-removebg-preview.png" alt="Gigantic Soccer Darts" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Gigantic Soccer Darts</h3>
+            <div class="bb-unit-tags"><span>All ages</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$300</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/carnival_game_blast/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/Screenshot_20200625-001740_2-removebg-preview.png" alt="Carnival Game Blast" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>Carnival Game Blast</h3>
+            <div class="bb-unit-tags"><span>All ages</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$250</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        <a class="bb-unit" href="/items/xl_red,white_and_bounce_house/">
+          <div class="bb-unit-img"><img src="https://files.sysers.com/cp/upload/tifc/items/57-removebg-preview.png" alt="XL Red, White and Bounce House" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>XL Red, White and Bounce House</h3>
+            <div class="bb-unit-tags"><span>All ages</span></div>
+            <ul class="bb-unit-limits"><li><span>Height &amp; weight limits</span><b>Ask us</b></li></ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">$325</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>
+        </div>
+        
+      </div>
+      <p class="bb-age-note">Age ratings come from each unit's specs. Height, weight and rider limits are printed on every unit, and our crew goes over them at setup. Not sure what fits? Call <a href="tel:5133051758">(513) 305-1758</a>.</p>
+    </div>
+  </section>
+</div>
+<script>
+  (function () {
+    var root = document.getElementById('bb-age'); if (!root) return;
+    var tabs = root.querySelectorAll('[role="tab"]');
+    Array.prototype.forEach.call(tabs, function (t) {
+      t.addEventListener('click', function () {
+        Array.prototype.forEach.call(tabs, function (x) {
+          var on = x === t;
+          x.setAttribute('aria-selected', on ? 'true' : 'false');
+          x.classList.toggle('on', on);
+          document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+        });
+      });
+    });
+  })();
+</script>
 
 <div class="bb-band">
   <!-- SAFETY -->

@@ -67,6 +67,87 @@ function delivery(town, miles) {
   };
 }
 
+// ---------- Kids' age finder (same on every town page) ----------
+const inventory = JSON.parse(fs.readFileSync(path.join(root, 'inventory.json'), 'utf8'));
+const TYPE_ORDER = { bounce: 0, combo: 1, slide: 2, obstacle: 3, game: 4 };
+const MAX_PER_BAND = 8;
+
+// "3 and Up" -> {min:3}, "3-Adult" -> {min:3, adults}, "Teens, and Adults" -> {min:13, adults}, "Any"/"All" -> {min:0, adults}
+function parseAge(text) {
+  const t = (text || '').toLowerCase().trim();
+  if (!t) return null;
+  if (/^(any|all)\b/.test(t)) return { min: 0, adults: true, label: 'All ages' };
+  if (/teen/.test(t)) return { min: 13, adults: true, label: 'Teens & adults' };
+  const n = t.match(/\d+/);
+  if (!n) return null;
+  const adults = /adult/.test(t);
+  return { min: +n[0], adults, label: adults ? `Ages ${n[0]} to adult` : `Ages ${n[0]}+` };
+}
+
+// Which units show under each age band. Toddlers only see units rated 3 and under;
+// the teens & adults band only shows units rated for adults.
+function fitsBand(age, band) {
+  if (!age) return false;
+  if (band.id === 'teens') return age.adults;
+  return age.min <= (band.id === 'toddler' ? 3 : band.maxAge);
+}
+
+function unitCard(u, age) {
+  const wet = /wet\/dry|wet-dry/i.test(u.name) ? 'Wet or dry' : /\bwet\b/i.test(u.name) ? 'Wet' : '';
+  const limits = [['Max height', u.maxHeight], ['Max weight', u.maxWeight], ['Riders at once', u.maxRiders]].filter(l => l[1]);
+  const limitsHtml = limits.length
+    ? limits.map(l => `<li><span>${l[0]}</span><b>${esc(l[1])}</b></li>`).join('')
+    : '<li><span>Height &amp; weight limits</span><b>Ask us</b></li>';
+  return `<a class="bb-unit" href="/items/${encodeURI(u.slug)}/">
+          <div class="bb-unit-img"><img src="${esc(u.photo)}" alt="${esc(u.name)}" loading="lazy"></div>
+          <div class="bb-unit-body">
+            <h3>${esc(u.name)}</h3>
+            <div class="bb-unit-tags"><span>${esc(age.label)}</span>${wet ? `<span class="wet">💧 ${wet}</span>` : ''}</div>
+            <ul class="bb-unit-limits">${limitsHtml}</ul>
+            <div class="bb-unit-foot"><span class="bb-unit-price">${money(u.price)}</span><span class="bb-unit-cta">Details →</span></div>
+          </div>
+        </a>`;
+}
+const money = n => '$' + Number(n).toLocaleString('en-US');
+
+function buildAgeFinder() {
+  const units = inventory.units.map(u => ({ u, age: parseAge(u.ageGroup) }));
+  const tabs = inventory.ageBands.map((b, i) =>
+    `<button class="bb-age-tab${i ? '' : ' on'}" role="tab" id="bb-age-tab-${b.id}" aria-controls="bb-age-${b.id}" aria-selected="${i ? 'false' : 'true'}">` +
+    `<span class="bb-age-emo">${b.emoji}</span><b>${esc(b.label)}</b><small>${esc(b.ages)}</small></button>`).join('');
+  const panels = inventory.ageBands.map((b, i) => {
+    // Order by this band's preferred unit types (e.g. obstacle courses first for tweens), then price
+    // (cheapest first, or biggest/priciest first for older kids when "biggestFirst" is set)
+    const pref = b.prefer || Object.keys(TYPE_ORDER);
+    const rank = t => { const i = pref.indexOf(t); return i < 0 ? 99 : i; };
+    const dir = b.biggestFirst ? -1 : 1;
+    const fit = units.filter(x => fitsBand(x.age, b))
+      .sort((a, c) => (rank(a.u.type) - rank(c.u.type)) || dir * (a.u.price - c.u.price));
+    if (!fit.length) throw new Error(`Age band "${b.id}" has no units: check ageGroup values in inventory.json`);
+    // Bounce Buddies' own units come first; partner units (shared by agreement) only fill open spots.
+    // Within each group, show a mix: at most 3 of any one type first, then fill with the rest.
+    const own = fit.filter(x => x.u.owned), partner = fit.filter(x => !x.u.owned);
+    const perType = {}, shown = [];
+    const take = (list, capped) => list.forEach(x => {
+      if (shown.length >= MAX_PER_BAND || shown.includes(x)) return;
+      if (capped && (perType[x.u.type] = (perType[x.u.type] || 0) + 1) > 3) return;
+      shown.push(x);
+    });
+    take(own, true); take(own, false); take(partner, true); take(partner, false);
+    // Keep the on-page order by type preference so the grid still reads bounce → combo → slide, etc.
+    shown.sort((a, c) => (c.u.owned - a.u.owned) || (rank(a.u.type) - rank(c.u.type)) || dir * (a.u.price - c.u.price));
+    return `<div class="bb-age-panel" role="tabpanel" id="bb-age-${b.id}" aria-labelledby="bb-age-tab-${b.id}"${i ? ' hidden' : ''}>
+        <p class="bb-age-tip">${b.emoji} ${esc(b.tip)}</p>
+        <div class="bb-units">
+        ${shown.map(x => unitCard(x.u, x.age)).join('\n        ')}
+        </div>
+        ${fit.length > shown.length ? `<p class="bb-age-more">Showing ${shown.length} of ${fit.length} units for this age. <a href="/category">See all rentals →</a></p>` : ''}
+      </div>`;
+  }).join('\n      ');
+  return { tabs, panels };
+}
+const ageFinder = buildAgeFinder();
+
 function buildTown(town) {
   const p = town.page;
   const others = data.towns.filter(t => t.slug !== town.slug && t.lat && !t.region);
@@ -106,6 +187,8 @@ function buildTown(town) {
     : '';
 
   const values = {
+    AGE_TABS: ageFinder.tabs,
+    AGE_PANELS: ageFinder.panels,
     HERO_PHOTO: esc(hero.photo),
     HERO_ALT: esc(hero.alt).replace(/"/g, '&quot;'),
     HERO_POS: esc(hero.position || 'center'),

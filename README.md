@@ -57,6 +57,7 @@ node towns/build.js loveland
 | One town's intro, heading or park notes | That town's `page` block in `towns/towns.json` | Rebuild that town and re-paste it |
 | The free delivery distance | `freeDeliveryMiles` / `maxDeliveryMiles` in `towns/towns.json` | Rebuild all |
 | A town's banner photo | Add a `hero` block to that town in `towns/towns.json` (see below) | Rebuild that town |
+| The Kids' Age Finder (units, ages, height/weight limits) | `towns/inventory.json` (see below) | Rebuild all |
 
 `towns/template.html` uses slots like `{{TOWN}}` and `{{INTRO}}` that the build script fills in. If you add a new slot, add its value in `towns/build.js` too (the build stops with an error if a slot has no value).
 
@@ -91,6 +92,23 @@ Photo tips:
 - Your own photos of real setups in that town work best (get the family's OK, and avoid kids' faces without consent).
 - Only use photos you took or have the rights to. Don't use images from a Google search.
 - Use a landscape photo about 1600–2400 px wide, compressed to under ~400 KB so the page loads fast.
+
+### Kids' Age Finder
+
+The "What's best for your kids' ages?" section on every town page has four tabs (Toddlers 2–4, Kids 5–8, Tweens 9–12, Teens & adults) and shows up to 8 rated units for each. It's built from `towns/inventory.json`, which lists every rental unit (copied from the ERS item pages).
+
+For each unit you can fill in:
+
+| Field | Example | Notes |
+|---|---|---|
+| `ageGroup` | `"3 and Up"`, `"4-Adult"`, `"Teens, and Adults"`, `"All"` | Units with no age group don't appear in the finder. Use the same wording as the ERS "Age Group" field. "Adult", "Teens" or "All" also puts a unit in the Teens & adults tab. |
+| `maxHeight` | `"5'0\""` | From the manufacturer label on the unit. |
+| `maxWeight` | `"150 lbs"` | From the manufacturer label. |
+| `maxRiders` | `"6 kids"` | How many can use it at once. |
+
+Until a unit has height, weight or rider limits, its card says "Height & weight limits: Ask us".
+
+Each tab's tip text, preferred unit types (`prefer`) and ordering are set in the `ageBands` list at the top of the file. When you add or remove a unit in ERS, add or remove it here too (`slug` is the last part of its ERS item address, e.g. `/items/shark_attack_combo_wet-dry/`).
 
 ### Adding a new town
 
