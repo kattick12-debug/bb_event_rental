@@ -1,0 +1,49 @@
+{
+  "_readme": "Settings for the group events page (/events/: schools, churches, companies, festivals). Built by towns/build.js into ers-embed/events.html. Units are referenced by their slug in towns/inventory.json; prices, outlets and attendants come from there.",
+
+  "page": {
+    "slug": "events",
+    "title": "School Field Day, Festival & Company Picnic Inflatable Rentals | Bounce Buddies",
+    "description": "Inflatable rentals for school field days, church festivals, company picnics and community events in Cincinnati & Northern Kentucky. $1M insured. Request a quote."
+  },
+
+  "_quote": "Where quote requests go. The form never sends anything by itself: it builds the request, then offers 'Copy & open contact form' (contactUrl), 'Email it' (only shown if email is set) and 'Call'.",
+  "quote": {
+    "email": "",
+    "contactUrl": "/contact_us/"
+  },
+
+  "_offers": "Set each to \"yes\" once you've confirmed you offer it; \"ask\" shows softer 'ask us' wording. nonprofitDiscount: leave \"\" for none, or write the offer, e.g. \"10% off for schools and nonprofits\".",
+  "offers": {
+    "coi": "ask",
+    "purchaseOrders": "ask",
+    "taxExempt": "ask",
+    "attendants": "ask",
+    "nonprofitDiscount": ""
+  },
+
+  "eventTypes": [
+    { "emoji": "🏃", "title": "School field days", "blurb": "Keep every class moving with obstacle races, slides and sports games.",
+      "picks": ["30_7_element_retro_inflatable_obstacle_course", "60_retro_7-_element_obstacle_course", "titanium_dual_lane_combo_wet-dry", "hoop_shot_basketball"] },
+    { "emoji": "⛪", "title": "Church festivals & VBS", "blurb": "Family-friendly combos and games that work for all ages.",
+      "picks": ["rainbow_castle_combo_wet-dry", "shark_attack_combo_wet-dry", "13_ocean_slide_wet-dry", "nutty_squirrels_air_frame_game"] },
+    { "emoji": "🧺", "title": "Company picnics", "blurb": "Big slides and head-to-head games that get adults in on the fun too.",
+      "picks": ["24_dual_lane_rainbow_rush_slide_wet-dry", "30_retro_obstacle_course_rock_climb_slide", "giant_jenga", "giant_4_to_score"] },
+    { "emoji": "🎪", "title": "Community & HOA festivals", "blurb": "Crowd-pleasers that handle long lines all day.",
+      "picks": ["90_retro_mega_3-piece_obstacle_course", "18_rainbow_rapids_slide_wet-dry", "palm_tree_bounce_castle", "soccer_kick_air_frame_game"] },
+    { "emoji": "🌙", "title": "After-prom & teen nights", "blurb": "Races and challenges big enough for teens and adults.",
+      "picks": ["90_retro_mega_3-piece_obstacle_course", "18_rainbow_rapids_slide_wet-dry", "football_challenge", "hoop_shot_basketball"] }
+  ],
+
+  "bundles": [
+    { "id": "field-day", "emoji": "🏃", "name": "Field Day Starter", "crowd": "Up to ~100 kids",
+      "blurb": "An obstacle race, a combo and a slide, plus quick sports games for kids waiting their turn.",
+      "units": ["30_7_element_retro_inflatable_obstacle_course", "titanium_dual_lane_combo_wet-dry", "13_ocean_slide_wet-dry", "soccer_kick_air_frame_game", "football_challenge"] },
+    { "id": "festival", "emoji": "🎪", "name": "Festival Favorite", "crowd": "~250 guests",
+      "blurb": "A 60-foot race course and our tallest slide anchor the event, with two combos for younger kids.",
+      "units": ["60_retro_7-_element_obstacle_course", "24_dual_lane_rainbow_rush_slide_wet-dry", "shark_attack_combo_wet-dry", "rainbow_castle_combo_wet-dry", "hoop_shot_basketball"] },
+    { "id": "mega", "emoji": "🏆", "name": "Mega Event", "crowd": "500+ guests", "custom": true,
+      "blurb": "Our 90-foot MEGA course, two big slides, two combos and games. We'll build a custom plan around your crowd and space.",
+      "units": ["90_retro_mega_3-piece_obstacle_course", "24_dual_lane_rainbow_rush_slide_wet-dry", "19_lava_wave_slide_wet-dry", "titanium_dual_lane_combo_wet-dry", "rainbow_castle_combo_wet-dry", "hoop_shot_basketball", "football_challenge"] }
+  ]
+}

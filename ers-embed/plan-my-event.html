@@ -321,7 +321,7 @@
       const suggest = n <= 30 ? 1 : n <= 60 ? 2 : 3;
       const tips = [];
       if (n > 30 && inflatables < suggest) tips.push(`🎈 <b>Tip:</b> with ${guestText()}, ${suggest} attractions keep lines short. An obstacle course is great for big groups.`);
-      if (n > 100) tips.push(`📞 <b>Big event?</b> Call us at <a href="${TEL}" style="text-decoration:underline">${PHONE}</a> for a custom quote.`);
+      if (n > 100) tips.push(`🏫 <b>Big event?</b> See our <a href="/events/" style="text-decoration:underline">group event bundles</a> for schools, churches and companies, or call <a href="${TEL}" style="text-decoration:underline">${PHONE}</a> for a custom quote.`);
       if (S.venue === 'park' && chosen().some(i => i.water)) tips.push(`💧 <b>Heads up:</b> many parks don't allow water attractions (Great Parks doesn't). Ask for the dry version, or check with your park.`);
       const e = estimate();
       card.innerHTML = `

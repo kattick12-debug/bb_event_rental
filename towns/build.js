@@ -1,10 +1,12 @@
 // Builds one ERS town page per town from towns/template.html + towns/towns.json.
 //
-//   node towns/build.js            -> builds every town that has a "page" block in towns.json
+//   node towns/build.js            -> builds every town that has a "page" block in towns.json, plus the events page
 //   node towns/build.js milford    -> builds just one town
+//   node towns/build.js events     -> builds just the group events page
 //
 // Output: ers-embed/towns/<slug>.html (paste into that town's ERS Raw HTML block)
-//         ers-embed/towns/page-settings.txt (page title + description to enter in ERS for each town)
+//         ers-embed/events.html (paste into /events/)
+//         ers-embed/towns/page-settings.txt (page title + description to enter in ERS for each page)
 
 const fs = require('fs');
 const path = require('path');
@@ -222,22 +224,153 @@ function buildTown(town) {
 
   fs.writeFileSync(path.join(outDir, `${town.slug}.html`), html, 'utf8');
 
-  const title = `Bounce House Rentals in ${placeName(town)} | Bounce Buddies`;
-  const desc = `Bounce houses, water slides, combos & obstacle courses delivered and set up in ${placeName(town)}. $1M insured, cleaned after every rental. Book online!`;
-  return { town, miles, title, desc, nearby };
+  return { town, miles, nearby };
+}
+
+const townSettings = town => ({
+  slug: town.slug,
+  title: `Bounce House Rentals in ${placeName(town)} | Bounce Buddies`,
+  desc: `Bounce houses, water slides, combos & obstacle courses delivered and set up in ${placeName(town)}. $1M insured, cleaned after every rental. Book online!`
+});
+
+// ---------- Group events page (/events/) ----------
+function buildEvents() {
+  const ev = JSON.parse(fs.readFileSync(path.join(root, 'events.json'), 'utf8'));
+  const evTemplate = fs.readFileSync(path.join(root, 'events-template.html'), 'utf8');
+  const baseCss = (template.match(/<style>([\s\S]*?)<\/style>/) || [])[1];
+  if (!baseCss) throw new Error('Could not find the <style> block in towns/template.html');
+  const unitBySlug = slug => {
+    const u = inventory.units.find(x => x.slug === slug);
+    if (!u) throw new Error(`events.json refers to "${slug}", which isn't in inventory.json`);
+    return u;
+  };
+  const link = u => `/items/${encodeURI(u.slug)}/`;
+  const yes = k => ev.offers[k] === 'yes';
+
+  const eventTypes = ev.eventTypes.map(t => `<div class="bb-ev-type">
+          <span class="bb-ev-emo">${t.emoji}</span><h3>${esc(t.title)}</h3><p>${esc(t.blurb)}</p>
+          <ul class="bb-ev-picks">${t.picks.map(unitBySlug).map(u => `<li><a href="${link(u)}">${esc(u.name)}</a></li>`).join('')}</ul>
+        </div>`).join('\n        ');
+
+  const bundles = ev.bundles.map(b => {
+    const us = b.units.map(unitBySlug);
+    const total = us.reduce((s, u) => s + u.price, 0);
+    const outlets = us.reduce((s, u) => s + (Number(u.outlets) || 0), 0);
+    const attendants = us.reduce((s, u) => s + (Number(u.attendants) || 0), 0);
+    return `<div class="bb-bundle">
+          <div class="bb-bundle-top"><span class="bb-bundle-emo">${b.emoji}</span><div><h3>${esc(b.name)}</h3><span class="bb-crowd">${esc(b.crowd)}</span></div></div>
+          <p>${esc(b.blurb)}</p>
+          <ul class="bb-bundle-units">${us.map(u => `<li><img src="${esc(u.photo)}" alt="" loading="lazy"><a href="${link(u)}">${esc(u.name)}</a><span>${money(u.price)}</span></li>`).join('')}</ul>
+          <div class="bb-bundle-stats"><span>🎈 ${us.length} units</span><span>⚡ ${outlets} outlets or a generator</span>${attendants ? `<span>👥 ${attendants} attendants listed</span>` : ''}</div>
+          <div class="bb-bundle-foot">
+            <div class="bb-bundle-price"><small>${b.custom ? 'Starting around' : 'From'}</small>${money(total)}${b.custom ? '+' : ''}</div>
+            <a href="#bb-quote" class="bb-btn bb-btn-blue" data-bundle="${esc(b.id)}">Request this bundle →</a>
+          </div>
+        </div>`;
+  }).join('\n        ');
+
+  const why = [
+    ['🛡️', '$1M insured', yes('coi')
+      ? 'Fully insured with a $1 million liability policy, with certificates of insurance naming your school or organization.'
+      : 'Fully insured with a $1 million liability policy. Need a certificate of insurance? Ask us when you request a quote.'],
+    ['✅', 'Inspected & cleaned', 'Every inflatable is state-inspected each year, and cleaned and sanitized before every event.'],
+    ['🧾', 'Easy billing', [
+      yes('purchaseOrders') ? 'We accept purchase orders and can invoice your organization.' : 'Paying by invoice or purchase order? Let us know in your request.',
+      yes('taxExempt') ? 'Tax-exempt? Send your certificate and we won’t charge sales tax.' : 'Tax-exempt organizations: mention it when you ask for a quote.'
+    ].join(' ')],
+    ['👥', 'Staffing', yes('attendants')
+      ? 'Need hands? Our attendants can run the units so your volunteers can enjoy the event.'
+      : 'Larger units list 1–2 attendants each, so you can plan volunteers. Ask us about staffing.'],
+    ['🚚', 'Delivery & setup', `Free delivery within ${data.freeDeliveryMiles} miles. We set up before your start time and take everything down after.`],
+    ev.offers.nonprofitDiscount
+      ? ['💙', 'Nonprofit pricing', ev.offers.nonprofitDiscount]
+      : ['📋', 'One quote, whole event', 'Booking several units? We’ll put the whole event, generators and all, into one quote.']
+  ].map(c => `<div class="bb-why-card"><span>${c[0]}</span><div><h3>${esc(c[1])}</h3><p>${esc(c[2])}</p></div></div>`).join('\n        ');
+
+  const faq = [
+    ['Do you provide a certificate of insurance?', yes('coi')
+      ? 'Yes. We carry a $1 million liability policy and can issue a certificate naming your school, church or organization. Just ask when you book.'
+      : 'We carry a $1 million liability policy. If your school, church or venue needs a certificate of insurance, ask us when you request a quote.'],
+    ['Can we pay by invoice or purchase order?', yes('purchaseOrders')
+      ? 'Yes. We accept purchase orders and can invoice your organization.'
+      : 'Mention it in your quote request and we’ll work out billing with you.'],
+    ['We’re tax-exempt. Do we pay sales tax?', yes('taxExempt')
+      ? 'No. Send us your tax-exempt certificate and we won’t charge sales tax.'
+      : 'Let us know in your request that you’re tax-exempt and we’ll go over it with you.'],
+    ['Do you provide attendants?', yes('attendants')
+      ? 'Yes. Our attendants can run the units for you. Ask for staffing in your quote request.'
+      : 'Our larger courses list 1–2 attendants each, and most groups use their own adult volunteers. Ask us about staffing for your event.'],
+    ['How early do you set up?', 'Generally 1–3 hours before your start time, and up to 4 hours on busy days. We call the day before to confirm.'],
+    ['What if it rains?', 'Cancel 8 or more days out for a full refund of your deposit. Cancel 2–7 days out and you get a rain check good for one year.'],
+    ['How far do you travel?', `Delivery is free within ${data.freeDeliveryMiles} miles of our warehouse, and we travel up to ${data.maxDeliveryMiles} miles. Farther than that? Give us a call.`]
+  ].map((q, i) => `<details${i ? '' : ' open'}><summary>${esc(q[0])}</summary><p>${esc(q[1])}</p></details>`).join('\n        ');
+
+  const jsonld = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType: 'Inflatable rentals for schools, churches, companies and community events',
+    name: 'Group event inflatable rentals',
+    url: `https://www.bouncebuddieseventrental.com/${ev.page.slug}/`,
+    areaServed: { '@type': 'AdministrativeArea', name: 'Greater Cincinnati and Northern Kentucky' },
+    provider: {
+      '@type': 'LocalBusiness', name: 'Bounce Buddies Event Rental', telephone: '+1-513-305-1758',
+      address: { '@type': 'PostalAddress', streetAddress: '8134 Clough Pike', addressLocality: 'Cincinnati', addressRegion: 'OH', postalCode: '45244', addressCountry: 'US' }
+    }
+  }, null, 2);
+
+  const hero = data.defaultHero;
+  const values = {
+    SLUG: ev.page.slug,
+    BASE_CSS: baseCss,
+    HERO_PHOTO: esc(hero.photo),
+    HERO_ALT: esc(hero.alt).replace(/"/g, '&quot;'),
+    HERO_POS: esc(hero.position || 'center'),
+    HERO_POS_MOBILE: esc(hero.positionMobile || '40% 55%'),
+    EVENT_TYPES: eventTypes,
+    BUNDLES: bundles,
+    STAFF_NOTE: yes('attendants') ? ' and attendants' : '',
+    WHY_CARDS: why,
+    EVENT_TYPE_OPTIONS: ev.eventTypes.map(t => `<option>${esc(t.title)}</option>`).join('') + '<option>Other</option>',
+    BUNDLE_OPTIONS: ev.bundles.map(b => `<option value="${esc(b.id)}">${esc(b.name)} (${esc(b.crowd)})</option>`).join(''),
+    QUOTE_CONFIG: JSON.stringify({
+      email: ev.quote.email || '',
+      contactUrl: ev.quote.contactUrl || '/contact_us/',
+      bundles: Object.fromEntries(ev.bundles.map(b => [b.id, b.units.map(s => unitBySlug(s).name).join(', ')]))
+    }),
+    FAQ: faq,
+    JSONLD: jsonld
+  };
+  const html = evTemplate.replace(/\{\{([A-Z_]+)\}\}/g, (m, key) => {
+    if (!(key in values)) throw new Error(`Events template slot {{${key}}} has no value`);
+    return values[key];
+  });
+  fs.writeFileSync(path.join(root, '..', 'ers-embed', 'events.html'), html, 'utf8');
+  return { slug: ev.page.slug, title: ev.page.title, desc: ev.page.description, bundles: ev.bundles.length };
 }
 
 // --- run ---
+//   node towns/build.js            -> every town page + the events page
+//   node towns/build.js loveland   -> just one town
+//   node towns/build.js events     -> just the events page
 const only = process.argv[2];
-const towns = data.towns.filter(t => t.page && (!only || t.slug === only));
-if (!towns.length) { console.error(only ? `No town "${only}" with a page block in towns.json` : 'No towns with a page block'); process.exit(1); }
 fs.mkdirSync(outDir, { recursive: true });
 
-const results = towns.map(buildTown);
-const settings = results.map(r =>
-  `/${r.town.slug}/\n  Page title:        ${r.title}\n  Meta description:  ${r.desc}\n`).join('\n');
-fs.writeFileSync(path.join(outDir, 'page-settings.txt'),
-  'ERS page settings for each town page (enter these in the ERS page editor).\nGenerated by towns/build.js.\n\n' + settings, 'utf8');
+let eventsResult = null;
+if (!only || only === 'events') {
+  eventsResult = buildEvents();
+  console.log(`built ../events.html  (${eventsResult.bundles} bundles)`);
+}
+if (only !== 'events') {
+  const towns = data.towns.filter(t => t.page && (!only || t.slug === only));
+  if (!towns.length) { console.error(`No town "${only}" with a page block in towns.json`); process.exit(1); }
+  towns.map(buildTown).forEach(r =>
+    console.log(`built ${r.town.slug}.html  (~${Math.round(r.miles)} mi, nearby: ${r.nearby.map(t => t.name).join(', ')})`));
+}
 
-results.forEach(r => console.log(`built ${r.town.slug}.html  (~${Math.round(r.miles)} mi, nearby: ${r.nearby.map(t => t.name).join(', ')})`));
-console.log(`\nOutput: ${path.relative(process.cwd(), outDir)}`);
+// The settings list always covers every page, even when only one was rebuilt
+const ev = JSON.parse(fs.readFileSync(path.join(root, 'events.json'), 'utf8'));
+const settings = [...data.towns.filter(t => t.page).map(townSettings), { slug: ev.page.slug, title: ev.page.title, desc: ev.page.description }]
+  .map(s => `/${s.slug}/\n  Page title:        ${s.title}\n  Meta description:  ${s.desc}\n`).join('\n');
+fs.writeFileSync(path.join(outDir, 'page-settings.txt'),
+  'ERS page settings for each page (enter these in the ERS page editor).\nGenerated by towns/build.js.\n\n' + settings, 'utf8');
+console.log(`\nOutput: ${path.relative(process.cwd(), outDir)} and ers-embed/events.html`);
