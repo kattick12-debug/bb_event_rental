@@ -11,6 +11,7 @@ HTML for the Bounce Buddies Event Rental site (bouncebuddieseventrental.com). Th
 | `ers-embed/towns/page-settings.txt` | Page title and meta description for each town page (generated). |
 | `ers-embed/plan-my-event.html` | The Plan My Event wizard (paste into `/plan-my-event/`). |
 | `ers-embed/yard-checker-page.html` | The Will It Fit yard checker (paste into `/yard-checker/`). |
+| `ers-embed/party-invite.html` | The Party Invitation Maker (paste into `/party-invite/`; create that page in ERS first). |
 | `ers-embed/home-page.html`, `ers-embed/plan-my-site.html` | Earlier versions, replaced by the generated town pages and the full-page yard checker. |
 | `milford-redesign.html`, `yard-checker.html` | The original standalone mockups (not used on the live site). |
 
@@ -55,7 +56,8 @@ node towns/build.js loveland
 |---|---|---|
 | The design of every town page (layout, colors, sections, prices, FAQ) | `towns/template.html` | Rebuild all towns and re-paste them |
 | One town's intro, heading or park notes | That town's `page` block in `towns/towns.json` | Rebuild that town and re-paste it |
-| The free delivery distance | `freeDeliveryMiles` / `maxDeliveryMiles` in `towns/towns.json` | Rebuild all |
+| The free delivery distance (town pages and the "Do you deliver to me?" checker) | `freeDeliveryMiles` / `maxDeliveryMiles` in `towns/towns.json` | Rebuild all |
+| Where delivery distances are measured from | `warehouse` `lat` / `lng` in `towns/towns.json` | Rebuild all |
 | A town's banner photo | Add a `hero` block to that town in `towns/towns.json` (see below) | Rebuild that town |
 | The Kids' Age Finder (units, ages, height/weight limits) | `towns/inventory.json` (see below) | Rebuild all |
 
@@ -110,6 +112,18 @@ Until a unit has height, weight or rider limits, its card says "Height & weight 
 
 Each tab's tip text, preferred unit types (`prefer`) and ordering are set in the `ageBands` list at the top of the file. When you add or remove a unit in ERS, add or remove it here too (`slug` is the last part of its ERS item address, e.g. `/items/shark_attack_combo_wet-dry/`).
 
+### "Do you deliver to me?" checker
+
+Every town page has a delivery checker: a visitor types their party address and sees whether delivery is free, may have a travel fee, or is outside the area. How it works:
+
+1. It looks up the address with free OpenStreetMap services (Photon, with Nominatim as a backup).
+2. It gets the **driving distance** from the free OSRM routing service. If that service is busy, it estimates from straight-line distance plus 30%.
+3. It compares the miles to `freeDeliveryMiles` and `maxDeliveryMiles` in `towns/towns.json`: free up to 2 miles under the limit, "looks like free, we'll confirm" right around it, "travel fee may apply" up to the max, and "call us" beyond that.
+
+Distances are measured from the `warehouse` point in `towns/towns.json`: the warehouse at 8134 Clough Pike (39.0885, -84.3289, from the U.S. Census geocoder). If the warehouse moves, update those coordinates (right-click the spot on Google Maps to copy them) and rebuild.
+
+The free services are fine for normal traffic. If the checker ever gets heavy use, switch to a paid map service (Google Maps or Mapbox).
+
 ### Adding a new town
 
 1. Add the town to the `towns` list in `towns/towns.json` with its `slug` (the web address, e.g. `terrace_park`), `label` (the button text), `name`, `state`, and `lat` / `lng` (look the town up on [openstreetmap.org](https://www.openstreetmap.org) and copy the coordinates).
@@ -119,5 +133,11 @@ Each tab's tip text, preferred unit types (`prefer`) and ordering are set in the
 ### Keeping it accurate
 
 - **Park rules** in the town notes were researched in October 2026 (Cincinnati Parks, Great Parks of Hamilton County, Clermont County Park District, Anderson Park District, Sycamore Township, West Chester Township, Mariemont). They change, so re-check them about once a year. Towns whose city park rules weren't confirmed tell visitors to check with the city.
-- **Distances** are estimates from the center of ZIP 45244, with 30% added to straight-line distance to approximate driving miles.
+- **Distances** on the town pages are measured from the warehouse (8134 Clough Pike), with 30% added to straight-line distance to approximate driving miles. The "Do you deliver to me?" checker uses real driving miles when the routing service responds.
 - **Package contents and prices** in `towns/template.html` and `ers-embed/plan-my-event.html` are copied from ERS. Update them when the packages change in ERS.
+
+## Party Invitation Maker
+
+`ers-embed/party-invite.html` is a full page (like the yard checker): parents enter the birthday kid's name, age, date, time, place, RSVP and a note, pick one of five themes (Bounce Castle, Water Splash, Obstacle Race, Carnival, Movie Night), and download, print or share a 5×7 invitation. Everything stays in their browser. Each invite has a small "Bounce house fun by Bounce Buddies" credit at the bottom.
+
+To put it live: create a `/party-invite/` page in ERS set up like `/yard-checker/` (blank, full page) and paste the file in. The town pages and the Plan My Event results already link to `/party-invite/`. To add or change a theme, edit the `THEMES` list near the top of the file's script.

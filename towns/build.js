@@ -187,6 +187,10 @@ function buildTown(town) {
     : '';
 
   const values = {
+    DZ_CONFIG: JSON.stringify({
+      warehouse: { lat: data.warehouse.lat, lng: data.warehouse.lng },
+      free: data.freeDeliveryMiles, max: data.maxDeliveryMiles, roadFactor: data.roadFactor
+    }),
     AGE_TABS: ageFinder.tabs,
     AGE_PANELS: ageFinder.panels,
     HERO_PHOTO: esc(hero.photo),

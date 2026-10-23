@@ -209,6 +209,27 @@
   .bb .bb-age-more a, .bb .bb-age-note a { color: var(--blue); text-decoration: underline; }
   .bb .bb-age-note { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 1.4rem; }
 
+  /* Delivery zone checker */
+  .bb-dz { background: #fff; border: 3px solid var(--ink); border-radius: 26px; box-shadow: 8px 8px 0 var(--orange); padding: 1.4rem 1.6rem; display: grid; grid-template-columns: auto 1fr; gap: 1rem 1.6rem; align-items: center; }
+  .bb-dz-head { display: flex; align-items: center; gap: 1rem; }
+  .bb-dz-icon { font-size: 2.6rem; line-height: 1; }
+  .bb .bb-dz h3 { font-size: 1.4rem; font-weight: 700; }
+  .bb-dz-head p { color: var(--muted); }
+  .bb-dz-form { display: flex; gap: .6rem; margin: 0; }
+  .bb .bb-dz-form input { flex: 1; min-width: 0; font: inherit; font-weight: 600; padding: .7rem 1rem; border: 3px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); outline: none; margin: 0; height: auto; box-shadow: none; }
+  .bb .bb-dz-form input:focus { box-shadow: 0 0 0 3px var(--sky); }
+  .bb-dz-result { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; border-radius: 16px; padding: .9rem 1.1rem; font-weight: 600; border: 2px solid; }
+  .bb-dz-result[hidden] { display: none; }
+  .bb-dz-result > span { flex: 1 1 320px; }
+  .bb-dz-result.wait { background: #f2f7fa; border-color: #d3e4ee; color: var(--muted); }
+  .bb-dz-result.ok { background: #e7f7ec; border-color: #9ed5ae; }
+  .bb-dz-result.fee { background: #fff4e0; border-color: #f5c97a; }
+  .bb-dz-result.far { background: #fdeceb; border-color: #f1b3ad; }
+  .bb .bb-dz-result a:not(.bb-btn) { color: var(--blue); text-decoration: underline; }
+  .bb-dz-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .bb-dz-actions .bb-btn { padding: .55rem 1.1rem; font-size: .95rem; }
+  @media (max-width: 860px) { .bb-dz { grid-template-columns: 1fr; padding: 1.2rem; } }
+
   /* Local (town-specific) section */
   .bb-local-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; align-items: center; }
   .bb .bb-local-intro { font-size: 1.1rem; color: var(--muted); margin-bottom: .9rem; }
@@ -328,7 +349,7 @@
   <!-- PERKS -->
   <section class="bb-sec">
     <div class="bb-wrap bb-perks">
-      <div class="bb-perk"><div class="bb-perk-icon" style="background:var(--sun)">🚚</div><h3>Free Delivery</h3><p>Madeira is about 8 miles from our warehouse, well inside our 30-mile free delivery zone. Setup and takedown included.</p></div>
+      <div class="bb-perk"><div class="bb-perk-icon" style="background:var(--sun)">🚚</div><h3>Free Delivery</h3><p>Madeira is about 10 miles from our warehouse, well inside our 30-mile free delivery zone. Setup and takedown included.</p></div>
       <div class="bb-perk"><div class="bb-perk-icon" style="background:var(--sky)">⏰</div><h3>Up to 8 Hours</h3><p>Full-day rentals built for maximum playtime. We set up before the clock starts.</p></div>
       <div class="bb-perk"><div class="bb-perk-icon" style="background:var(--gold-lt)">🏆</div><h3>Top-Tier Service</h3><p>Local prices and a crew that shows up on time.</p></div>
     </div>
@@ -345,6 +366,78 @@
     </div>
   </section>
 
+  <!-- DELIVERY ZONE CHECKER: "Do you deliver to me?" (settings come from towns/towns.json) -->
+  <section class="bb-sec" style="padding-top:0" id="bb-deliver">
+    <div class="bb-wrap">
+      <div class="bb-dz">
+        <div class="bb-dz-head">
+          <span class="bb-dz-icon">🚚</span>
+          <div><h3>Do you deliver to me?</h3><p>Enter your party address and we'll check right now.</p></div>
+        </div>
+        <form class="bb-dz-form" id="bb-dz-form">
+          <input id="bb-dz-addr" type="text" placeholder="Party address, e.g. 123 Main St, Madeira" autocomplete="street-address" aria-label="Party address" required>
+          <button class="bb-btn bb-btn-orange" type="submit">Check</button>
+        </form>
+        <div class="bb-dz-result" id="bb-dz-result" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function () {
+      var CFG = {"warehouse":{"lat":39.0885,"lng":-84.3289},"free":30,"max":40,"roadFactor":1.3};
+      var form = document.getElementById('bb-dz-form'); if (!form) return;
+      var input = document.getElementById('bb-dz-addr'), out = document.getElementById('bb-dz-result');
+      function show(cls, html) { out.className = 'bb-dz-result ' + cls; out.innerHTML = html; out.hidden = false; }
+      function withTimeout(url, ms) {
+        var ctl = window.AbortController ? new AbortController() : null;
+        var t = setTimeout(function () { if (ctl) ctl.abort(); }, ms);
+        return fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) { clearTimeout(t); if (!r.ok) throw 0; return r.json(); });
+      }
+      // Address -> coordinates: Photon first (good with house numbers), OpenStreetMap Nominatim as backup
+      function geocode(q) {
+        return withTimeout('https://photon.komoot.io/api/?limit=1&lat=39.15&lon=-84.4&q=' + encodeURIComponent(q), 6000)
+          .then(function (j) { var f = j.features && j.features[0]; if (!f) throw 0; var p = f.properties;
+            return { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0], label: [[p.housenumber, p.street].filter(Boolean).join(' ') || p.name, p.city, p.state].filter(Boolean).join(', ') }; })
+          .catch(function () {
+            return withTimeout('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q), 6000)
+              .then(function (a) { if (!a[0]) throw 0; return { lat: +a[0].lat, lng: +a[0].lon, label: a[0].display_name.split(',').slice(0, 3).join(',') }; });
+          });
+      }
+      function straightMiles(a, b) {
+        var R = 3958.8, rad = function (d) { return d * Math.PI / 180; };
+        var dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+        var h = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.pow(Math.sin(dLng / 2), 2);
+        return 2 * R * Math.asin(Math.sqrt(h));
+      }
+      // Driving miles from the free OSRM router; if it's busy, estimate from straight-line distance
+      function driveMiles(to) {
+        var w = CFG.warehouse;
+        return withTimeout('https://router.project-osrm.org/route/v1/driving/' + w.lng + ',' + w.lat + ';' + to.lng + ',' + to.lat + '?overview=false', 6000)
+          .then(function (j) { if (!j.routes || !j.routes[0]) throw 0; return { miles: j.routes[0].distance / 1609.34, driving: true }; })
+          .catch(function () { return { miles: straightMiles(w, to) * CFG.roadFactor, driving: false }; });
+      }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = input.value.trim(); if (!q) return;
+        show('wait', '🔎 Checking…');
+        geocode(q).then(function (place) {
+          return driveMiles(place).then(function (d) {
+            var m = Math.max(1, Math.round(d.miles)), about = (d.driving ? 'about ' : 'roughly ') + m + ' miles';
+            var where = place.label ? '<b>' + place.label.replace(/</g, '&lt;') + '</b> is ' : 'That address is ';
+            var book = '<a class="bb-btn bb-btn-blue" href="/order-by-date/?show_instructions=1">📅 Check my date</a>';
+            var call = '<a class="bb-btn bb-btn-white" href="tel:5133051758">📞 (513) 305-1758</a>';
+            if (d.miles <= CFG.free - 2) show('ok', '✅ <span>Yes! ' + where + about + ' from us, so <b>delivery, setup and takedown are free</b>.</span><div class="bb-dz-actions">' + book + '</div>');
+            else if (d.miles <= CFG.free + 1) show('ok', '✅ <span>Looks like free delivery! ' + where + about + ' from us, right around our ' + CFG.free + '-mile free zone. We\'ll confirm when you book.</span><div class="bb-dz-actions">' + book + '</div>');
+            else if (d.miles <= CFG.max) show('fee', '🚚 <span>Yes, we deliver there! ' + where + about + ' from us, so a <b>small travel fee</b> may apply. Call for the exact amount.</span><div class="bb-dz-actions">' + call + book + '</div>');
+            else show('far', '📞 <span>' + where + about + ' from us, outside our usual ' + CFG.max + '-mile area. Give us a call and we\'ll see what we can do.</span><div class="bb-dz-actions">' + call + '</div>');
+          });
+        }).catch(function () {
+          show('far', '🤔 <span>We couldn\'t find that address. Try adding the city and state, or call us at <a href="tel:5133051758">(513) 305-1758</a>.</span>');
+        });
+      });
+    })();
+  </script>
+
   <!-- LOCAL: town-specific content (this is what makes each town page unique for Google) -->
   <section class="bb-sec bb-local" style="padding-top:0">
     <div class="bb-wrap bb-local-grid">
@@ -355,7 +448,7 @@
         <p class="bb-local-nearby">Also serving nearby <a href="/sycamore">Sycamore Township</a>, <a href="/indian_hill">Indian Hill</a>, <a href="/montgomery">Montgomery</a> and <a href="/blue_ash">Blue Ash</a>.</p>
       </div>
       <ul class="bb-local-facts">
-        <li><span>📍</span><div><b>About 8 miles away</b><small>Free delivery, setup and takedown (we deliver free within 30 miles).</small></div></li>
+        <li><span>📍</span><div><b>About 10 miles away</b><small>Free delivery, setup and takedown (we deliver free within 30 miles).</small></div></li>
         <li><span>🌳</span><div><b>Party at a park?</b><small>Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Madeira park.</small></div></li>
         <li><span>⚡</span><div><b>Power</b><small>Our blowers need an outlet within 100 ft. Parks usually have no power, so add a generator.</small></div></li>
       </ul>
@@ -888,6 +981,7 @@
         <div class="bb-ctas">
           <a href="/order-by-date/?show_instructions=1" class="bb-btn bb-btn-blue">📅 Book Your Event</a>
           <a href="tel:5133051758" class="bb-btn bb-btn-white">📞 (513) 305-1758</a>
+          <a href="/party-invite/" class="bb-btn bb-btn-white">💌 Make party invitations</a>
         </div>
       </div>
     </div>

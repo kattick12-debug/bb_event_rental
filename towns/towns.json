@@ -3,9 +3,9 @@
 
   "warehouse": {
     "address": "8134 Clough Pike, Cincinnati, OH 45244",
-    "lat": 39.1167,
-    "lng": -84.2968,
-    "_note": "Center of ZIP 45244 (the exact street address isn't in OpenStreetMap). Distances are approximate."
+    "lat": 39.0885,
+    "lng": -84.3289,
+    "_note": "Exact warehouse location (U.S. Census geocoder and OpenStreetMap agree). Town-page distances are straight-line x roadFactor; the delivery checker uses real driving miles."
   },
   "_heroHowTo": "Banner photo: every town uses defaultHero unless its \"page\" block has a \"hero\" block. Upload the photo to ERS (or any public host), paste its URL as \"photo\", and write \"alt\" describing the photo with the town name (Google reads it). Optional: \"position\" / \"positionMobile\" choose which part of the photo stays in view (CSS object-position, e.g. \"30% 50%\" = left-of-center; first number is left-right, second is top-bottom). \"credit\" adds a small photo credit (required for Creative Commons photos, e.g. Wikimedia). Only use photos you took or have the rights to.",
   "defaultHero": {

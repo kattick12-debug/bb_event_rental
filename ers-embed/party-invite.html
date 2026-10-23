@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Invitation Maker | Bounce Buddies</title>
+<!--
+  Bounce Buddies – Party Invitation Maker (full page; paste into the ERS Raw HTML block of /party-invite/)
+  - Parents fill in their party details, pick a theme, and download / print / share a 5x7 invitation.
+  - Everything happens in the visitor's browser; nothing they type is sent anywhere.
+  - Each invite carries a small "Bounce house fun by Bounce Buddies" credit (free advertising).
+  - Themes are in THEMES below.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Matched to the ERS site: header cyan #00c2f5, header button orange #fc9403, footer royal blue #273195 */
+    --sky: #00c2f5; --blue: #273195; --orange: #fc9403; --sun: #f7b51d; --gold-lt: #ffe08a; --red: #e0402f;
+    --ink: #1c2366; --muted: #4f5a8c; --bg: #e6f8fe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Nunito", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+  h1, h2, h3, .btn { font-family: "Fredoka", "Nunito", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  .bar { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 16px; background: var(--sky); color: #fff; border-bottom: 3px solid var(--ink); }
+  .logo img { height: 54px; width: auto; display: block; filter: drop-shadow(2px 3px 0 rgba(28,35,102,.18)); }
+  .bar h1 { font-size: 1.25rem; text-shadow: 2px 2px 0 var(--ink); display: flex; align-items: center; gap: .5rem; }
+  .bar h1 .pill { background: var(--sun); color: var(--ink); text-shadow: none; border: 2px solid var(--ink); border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; }
+  .back { font-weight: 800; font-size: .95rem; color: #fff; }
+  @media (max-width: 640px) { .bar h1 { display: none; } }
+
+  .wrap { width: min(1180px, 100% - 32px); margin: 2rem auto 4rem; }
+  .intro { text-align: center; margin-bottom: 1.6rem; }
+  .eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .8rem; }
+  .intro h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; margin: .2rem 0 .4rem; }
+  .intro p { color: var(--muted); font-size: 1.05rem; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 2rem; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .preview-col { order: -1; } }
+
+  .card { background: #fff; border: 3px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--ink); padding: 1.5rem; }
+  .card h3 { font-size: 1.15rem; margin-bottom: .8rem; display: flex; align-items: center; gap: .5rem; }
+  .card + .card { margin-top: 1.4rem; }
+
+  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .7rem; }
+  .theme { cursor: pointer; border: 3px solid var(--ink); border-radius: 16px; padding: .7rem .5rem; text-align: center; background: var(--a); color: #fff; font-family: "Fredoka"; font-weight: 600; transition: transform .12s, box-shadow .12s; }
+  .theme span { display: block; font-size: 1.8rem; line-height: 1.2; }
+  .theme:hover { transform: translateY(-2px); }
+  .theme.on { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--orange); }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1rem; }
+  .fields .full { grid-column: 1 / -1; }
+  @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+  label { display: grid; gap: .3rem; font-weight: 800; font-size: .9rem; }
+  label small { font-weight: 600; color: var(--muted); }
+  input, select, textarea { width: 100%; padding: .6rem .8rem; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font-weight: 600; }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--sky); }
+
+  .preview-col { position: sticky; top: 1rem; }
+  .preview { background: #fff; border: 3px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--blue); padding: 1rem; }
+  .preview canvas { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 6px 20px rgba(28,35,102,.18); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: 1rem; }
+  .actions .wide { grid-column: 1 / -1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; font-weight: 600; font-size: 1rem; padding: .7rem 1rem; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; background: #fff; transition: transform .12s, box-shadow .12s; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .privacy { font-size: .82rem; color: var(--muted); text-align: center; margin-top: .8rem; }
+  .book { margin-top: 1.4rem; text-align: center; background: var(--gold-lt); border: 3px solid var(--ink); border-radius: 20px; padding: 1rem 1.2rem; font-weight: 700; }
+  .book a { text-decoration: underline; color: var(--blue); }
+
+  #printImg { display: none; }
+  @media print {
+    @page { size: 5in 7in; margin: 0; }
+    body { background: #fff !important; }
+    body > *:not(#printImg) { display: none !important; }
+    #printImg { display: block !important; width: 5in; height: 7in; }
+  }
+
+  /* Fallback if ERS serves this page on its "classic" template: hide the classic chrome. Harmless on a blank page. */
+  .content_top, .content_bottom, .footerSpace { display: none !important; }
+  .content_mid, .content_holder, .content_holder > div { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; background: none !important; position: static !important; left: auto !important; }
+  html:root, html body { background: var(--bg) !important; }
+  html body { font-family: "Nunito", system-ui, sans-serif !important; text-align: left !important; }
+  h1, h2, h3 { font-family: "Fredoka", "Nunito", sans-serif !important; text-transform: none !important; letter-spacing: normal !important; }
+  .bar .logo { margin: 0 !important; display: flex !important; }
+  .bar h1 { color: #fff !important; margin: 0 !important; }
+  .intro h2 { color: var(--ink); }
+  p { line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a href="/" class="logo"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/editor/logo-copy.png" alt="Bounce Buddies Event Rental"></a>
+  <h1>Party invitation maker <span class="pill">Free</span></h1>
+  <a href="/" class="back" id="backLink">← Back to site</a>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <div class="eyebrow">Free party printable</div>
+    <h2>Make your bounce party invitations 💌</h2>
+    <p>Fill in your details, pick a theme, then download, print or text it to your guests.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h3>🎨 Pick a theme</h3>
+        <div class="themes" id="themes"></div>
+      </div>
+
+      <div class="card">
+        <h3>✏️ Party details</h3>
+        <form class="fields" id="fields" autocomplete="off" onsubmit="return false">
+          <label>Birthday kid's name<input id="f-name" maxlength="24" placeholder="Emma"></label>
+          <label>Turning <small>(optional)</small><input id="f-age" type="number" min="1" max="99" placeholder="7"></label>
+          <label class="full">Headline <small>(optional; leave blank for "Bounce Party!")</small><input id="f-title" maxlength="28" placeholder="Bounce Party!"></label>
+          <label>Date<input id="f-date" type="date"></label>
+          <label>Time<input id="f-time" maxlength="24" placeholder="2:00 – 5:00 PM"></label>
+          <label class="full">Where<input id="f-place" maxlength="60" placeholder="123 Main St, Milford"></label>
+          <label class="full">RSVP<input id="f-rsvp" maxlength="60" placeholder="RSVP to Sarah · 513-555-0123 by June 1"></label>
+          <label class="full">Note <small>(optional)</small><textarea id="f-note" maxlength="90" placeholder="Bring a swimsuit and towel for the water slide!"></textarea></label>
+        </form>
+      </div>
+    </div>
+
+    <div class="preview-col">
+      <div class="preview">
+        <canvas id="inv" width="1200" height="1680" aria-label="Invitation preview"></canvas>
+        <div class="actions">
+          <button class="btn btn-orange" id="dl" type="button">⬇️ Download</button>
+          <button class="btn" id="print" type="button">🖨️ Print</button>
+          <button class="btn btn-blue wide" id="share" type="button" hidden>📲 Share / text it</button>
+        </div>
+        <p class="privacy">🔒 Everything stays on your device. Nothing you type is sent to us.</p>
+      </div>
+      <div class="book">🎈 Still need the bounce house? <a href="/order-by-date/?show_instructions=1">Check your date →</a></div>
+    </div>
+  </div>
+</main>
+<img id="printImg" alt="">
+
+<script>
+(function () {
+  // Each theme: two background colors, a card accent, and decoration emoji
+  var THEMES = [
+    { id: 'castle',   name: 'Bounce Castle',  a: '#fc9403', b: '#f7b51d', accent: '#e0402f', emoji: ['🏰', '🎈', '🎉', '🎈'], title: 'Bounce Party!' },
+    { id: 'splash',   name: 'Water Splash',   a: '#00c2f5', b: '#0b8fd8', accent: '#273195', emoji: ['🌊', '💦', '☀️', '🏖️'], title: 'Splash Party!', note: 'Bring a swimsuit and towel!' },
+    { id: 'obstacle', name: 'Obstacle Race',  a: '#e0402f', b: '#fc9403', accent: '#1c2366', emoji: ['🏁', '⚡', '🏆', '🏃'], title: 'Obstacle Bash!' },
+    { id: 'carnival', name: 'Carnival',       a: '#7a3fd1', b: '#e0409a', accent: '#f7b51d', emoji: ['🎪', '🍿', '🎟️', '🎠'], title: 'Carnival Party!' },
+    { id: 'movie',    name: 'Movie Night',    a: '#1c2366', b: '#273195', accent: '#f7b51d', emoji: ['🎬', '🍿', '⭐', '🌙'], title: 'Movie Night!' }
+  ];
+  var W = 1200, H = 1680, KEY = 'bbPartyInvite';
+  var canvas = document.getElementById('inv'), ctx = canvas.getContext('2d');
+  var $ = function (id) { return document.getElementById(id); };
+  var fieldIds = ['name', 'age', 'title', 'date', 'time', 'place', 'rsvp', 'note'];
+  var state = { theme: 'castle' };
+  try { var saved = JSON.parse(localStorage.getItem(KEY)); if (saved) state = saved; } catch (e) {}
+  fieldIds.forEach(function (k) { if (state[k]) $('f-' + k).value = state[k]; });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  // Theme picker
+  var themesEl = $('themes'); themesEl.innerHTML = '';   // the ERS editor can put a space in empty divs
+  THEMES.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'theme' + (t.id === state.theme ? ' on' : '');
+    b.style.setProperty('--a', 'linear-gradient(135deg,' + t.a + ',' + t.b + ')');
+    b.style.background = 'linear-gradient(135deg,' + t.a + ',' + t.b + ')';
+    b.innerHTML = '<span>' + t.emoji[0] + '</span>' + t.name;
+    b.onclick = function () { state.theme = t.id; save(); [].forEach.call(themesEl.children, function (c) { c.classList.remove('on'); }); b.classList.add('on'); draw(); };
+    themesEl.appendChild(b);
+  });
+  fieldIds.forEach(function (k) { $('f-' + k).addEventListener('input', function (e) { state[k] = e.target.value; save(); draw(); }); });
+
+  // ---------- drawing helpers ----------
+  function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function prettyDate(v) {
+    if (!v) return '';
+    var d = new Date(v + 'T12:00:00'); if (isNaN(d)) return v;
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  // Shrinks text until it fits the width
+  function fitText(text, x, y, maxW, size, weight, family, color) {
+    var s = size;
+    do { ctx.font = weight + ' ' + s + 'px ' + family; s -= 4; } while (ctx.measureText(text).width > maxW && s > 20);
+    ctx.fillStyle = color; ctx.fillText(text, x, y); return s + 4;
+  }
+  // Wraps text onto up to maxLines lines; returns the y after the last line
+  function wrapText(text, x, y, maxW, lineH, maxLines) {
+    var words = String(text).split(/\s+/), line = '', lines = [];
+    words.forEach(function (w) { var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; });
+    if (line) lines.push(line);
+    lines.slice(0, maxLines).forEach(function (l, i) { ctx.fillText(l, x, y + i * lineH); });
+    return y + Math.min(lines.length, maxLines) * lineH;
+  }
+
+  function draw() {
+    var t = THEMES.filter(function (x) { return x.id === state.theme; })[0] || THEMES[0];
+    var F = '"Fredoka", "Nunito", sans-serif', N = '"Nunito", sans-serif', INK = '#1c2366';
+    ctx.clearRect(0, 0, W, H);
+
+    // Background gradient + dot pattern + decoration emoji
+    var g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, t.a); g.addColorStop(1, t.b);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    for (var yy = 20; yy < H; yy += 44) for (var xx = (yy / 44) % 2 ? 42 : 20; xx < W; xx += 44) { ctx.beginPath(); ctx.arc(xx, yy, 4, 0, Math.PI * 2); ctx.fill(); }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#000';   // emoji pick up the fill's transparency, so draw them fully opaque
+    [[150, 170, 150, -0.25], [1060, 150, 130, 0.25], [110, 1450, 110, 0.2], [1090, 1460, 120, -0.2]].forEach(function (p, i) {
+      ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(p[3]); ctx.font = p[2] + 'px serif'; ctx.fillText(t.emoji[i % t.emoji.length], 0, 0); ctx.restore();
+    });
+
+    // "You're invited" ribbon
+    ctx.save(); ctx.translate(W / 2, 300); ctx.rotate(-0.04);
+    roundRect(-300, -52, 600, 104, 52); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.fillStyle = INK; ctx.font = '700 60px ' + F; ctx.fillText("You're invited!", 0, 4); ctx.restore();
+
+    // White card with chunky outline + offset shadow
+    var cx = 110, cy = 400, cw = W - 220, ch = 1020;
+    roundRect(cx + 18, cy + 18, cw, ch, 48); ctx.fillStyle = INK; ctx.fill();
+    roundRect(cx, cy, cw, ch, 48); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.stroke();
+
+    var y = cy + 110, maxW = cw - 120;
+    var name = (state.name || '').trim(), age = parseInt(state.age, 10);
+    var who = name ? (age > 0 ? name + "'s " + ordinal(age) : name + "'s") : (age > 0 ? 'Turning ' + age + '!' : '');
+    if (who) { fitText(who, W / 2, y, maxW, 92, '700', F, t.accent); y += 110; }
+    var title = (state.title || '').trim() || t.title;
+    fitText(title, W / 2, y + 10, maxW, who ? 120 : 140, '700', F, INK); y += who ? 150 : 170;
+
+    // Divider
+    ctx.strokeStyle = t.accent; ctx.lineWidth = 6; ctx.setLineDash([2, 18]); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + 140, y); ctx.lineTo(cx + cw - 140, y); ctx.stroke(); ctx.setLineDash([]); y += 80;
+
+    // Details
+    var rows = [['📅', prettyDate(state.date) || 'Date'], ['🕑', state.time || 'Time'], ['📍', state.place || 'Where']];
+    // Each detail on one line with its icon in front (wraps to a second line if it's long)
+    rows.forEach(function (r) {
+      ctx.font = '700 50px ' + N; ctx.fillStyle = INK;
+      y = wrapText(r[0] + '  ' + r[1], W / 2, y, maxW, 62, 2) + 34;
+    });
+    if (state.rsvp) { ctx.font = '800 40px ' + N; ctx.fillStyle = t.accent === '#f7b51d' ? '#273195' : t.accent; y = wrapText(state.rsvp, W / 2, y + 16, maxW, 50, 2) + 16; }
+    var note = (state.note || '').trim() || (t.note && !state.note ? t.note : '');
+    if (note) { ctx.font = 'italic 600 38px ' + N; ctx.fillStyle = '#4f5a8c'; wrapText(note, W / 2, Math.min(y + 30, cy + ch - 120), maxW, 48, 2); }
+
+    // Footer credit (small, friendly)
+    var credit = 'Bounce house fun by Bounce Buddies · bouncebuddieseventrental.com';
+    ctx.font = '700 28px ' + N;
+    var pw = Math.min(W - 120, ctx.measureText(credit).width + 70);
+    roundRect(W / 2 - pw / 2, H - 150, pw, 70, 35); ctx.fillStyle = 'rgba(255,255,255,.94)'; ctx.fill();
+    ctx.fillStyle = INK; ctx.fillText(credit, W / 2, H - 114);
+  }
+
+  // Draw once fonts are ready so the canvas uses Fredoka/Nunito
+  draw();
+  if (document.fonts && document.fonts.load) {
+    Promise.all([document.fonts.load('700 60px "Fredoka"'), document.fonts.load('700 40px "Nunito"'), document.fonts.load('italic 600 40px "Nunito"')]).then(draw, draw);
+  }
+
+  function fileName() { return ((state.name || 'party').trim().replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'party') + '-invitation.png'; }
+  $('dl').onclick = function () {
+    var a = document.createElement('a'); a.download = fileName(); a.href = canvas.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+  };
+  $('print').onclick = function () { $('printImg').src = canvas.toDataURL('image/png'); setTimeout(function () { window.print(); }, 200); };
+  // Share (phones): send the image straight to Messages, email, etc.
+  if (navigator.canShare && window.File) {
+    var testFile = new File([new Blob()], 'x.png', { type: 'image/png' });
+    if (navigator.canShare({ files: [testFile] })) {
+      $('share').hidden = false;
+      $('share').onclick = function () {
+        canvas.toBlob(function (blob) {
+          var file = new File([blob], fileName(), { type: 'image/png' });
+          navigator.share({ files: [file], title: 'Party invitation' }).catch(function () {});
+        }, 'image/png');
+      };
+    }
+  }
+
+  // "Back to site" acts like the browser back button when the visitor came from another page on this site
+  $('backLink').addEventListener('click', function (e) {
+    try {
+      var from = document.referrer ? new URL(document.referrer) : null;
+      if (from && from.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, '') && from.pathname !== location.pathname && history.length > 1) { e.preventDefault(); history.back(); }
+    } catch (err) {}
+  });
+})();
+</script>
+</body>
+</html>
