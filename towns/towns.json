@@ -1,0 +1,309 @@
+{
+  "_readme": "Town data for towns/build.js. Towns with a \"page\" block get a generated page; the rest are used for the town chips and 'nearby' links. Coordinates from OpenStreetMap (Oct 2026). Park notes researched Oct 2026; re-check yearly.",
+
+  "warehouse": {
+    "address": "8134 Clough Pike, Cincinnati, OH 45244",
+    "lat": 39.1167,
+    "lng": -84.2968,
+    "_note": "Center of ZIP 45244 (the exact street address isn't in OpenStreetMap). Distances are approximate."
+  },
+  "_heroHowTo": "Banner photo: every town uses defaultHero unless its \"page\" block has a \"hero\" block. Upload the photo to ERS (or any public host), paste its URL as \"photo\", and write \"alt\" describing the photo with the town name (Google reads it). Optional: \"position\" / \"positionMobile\" choose which part of the photo stays in view (CSS object-position, e.g. \"30% 50%\" = left-of-center; first number is left-right, second is top-bottom). \"credit\" adds a small photo credit (required for Creative Commons photos, e.g. Wikimedia). Only use photos you took or have the rights to.",
+  "defaultHero": {
+    "photo": "https://files.sysers.com/cp/upload/bouncebuddieseventrental/gallery/full/Bounce-Buddies-Milford-Enhanced.jpg",
+    "alt": "Bounce Buddies truck with a giant inflatable eagle in a local parade",
+    "position": "center",
+    "positionMobile": "40% 55%"
+  },
+  "freeDeliveryMiles": 30,
+  "maxDeliveryMiles": 40,
+  "roadFactor": 1.3,
+
+  "parkText": {
+    "greatParks": "Great Parks of Hamilton County shelters allow inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator).",
+    "confirm": "Always confirm with the park before you book."
+  },
+
+  "towns": [
+    {
+      "slug": "milford", "label": "Milford", "name": "Milford", "state": "OH", "lat": 39.1746, "lng": -84.2959,
+      "page": {
+        "heading": "Milford's go-to bounce crew",
+        "intro": "Our warehouse is just down the road in the 45244 ZIP code, so Milford parties get quick, on-time setups. We bring bounce houses, water slides, combos and obstacle courses to backyards across Milford and nearby Miami Township, from first birthdays to graduation open houses and neighborhood block parties.",
+        "parksShort": "Clermont County parks like Shor Park don't allow inflatables. Woodland Mound (Great Parks) does, with approval.",
+        "parksLong": "Clermont County Park District shelters, including Shor Park on Tealtown Road, don't allow inflatables. Woodland Mound in Anderson Township, a Great Parks of Hamilton County park, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). For most Milford parties, a backyard is the easiest choice."
+      }
+    },
+    {
+      "slug": "anderson", "label": "Anderson", "name": "Anderson Township", "state": "OH", "lat": 39.087, "lng": -84.342,
+      "page": {
+        "heading": "Bounce houses right next door in Anderson Township",
+        "intro": "We're based just off Clough Pike, so Anderson Township is practically our backyard. From Forestville to the river, we deliver, set up and sanitize bounce houses, slides and obstacle courses for birthdays, swim-team parties and end-of-school celebrations.",
+        "parksShort": "Anderson Park District parks don't allow inflatables. Woodland Mound (Great Parks) does, with approval.",
+        "parksLong": "Anderson Park District doesn't allow inflatables in any of its parks, including the Riverside Park and Juilfs Park shelters. Woodland Mound, a Great Parks of Hamilton County park here in Anderson Township, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator)."
+      }
+    },
+    {
+      "slug": "loveland", "label": "Loveland", "name": "Loveland", "state": "OH", "lat": 39.2689, "lng": -84.2638,
+      "page": {
+        "heading": "Bounce house rentals for Loveland parties",
+        "intro": "From big Loveland backyards to summer block parties and school field days, we bring the bounce to Loveland and nearby Symmes and Miami Townships. Every inflatable is cleaned, inspected and set up by our crew, with a safety walk-around before we leave.",
+        "parksShort": "Lake Isabella (Great Parks) allows inflatables with approval. Check with the city before using a Loveland city park.",
+        "parksLong": "Lake Isabella, a Great Parks of Hamilton County park near Loveland, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Loveland's own city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "batavia", "label": "Batavia", "name": "Batavia", "state": "OH", "lat": 39.077, "lng": -84.1769,
+      "page": {
+        "heading": "Batavia's bounce house crew",
+        "intro": "Batavia, the Clermont County seat, is a short drive east of our warehouse. We set up bounce houses, slides, combos and obstacle courses for birthdays, family reunions and church picnics across Batavia and Batavia Township.",
+        "parksShort": "Clermont County parks don't allow inflatables, so a backyard is usually the way to go.",
+        "parksLong": "Clermont County Park District shelters don't allow inflatables. If you need a park, Great Parks of Hamilton County shelters such as Woodland Mound allow them with approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). Most Batavia parties happen in the backyard, which needs no reservation."
+      }
+    },
+
+    {
+      "slug": "amelia", "label": "Amelia", "name": "Amelia", "state": "OH", "lat": 39.0275, "lng": -84.2193,
+      "page": {
+        "heading": "Bounce house rentals in Amelia",
+        "intro": "Amelia is a quick trip out Ohio Pike from our warehouse, so we're there in no time. We bring bounce houses, water slides and obstacle courses to Amelia backyards for birthdays, graduation parties and summer cookouts, and we handle all the setup and takedown.",
+        "parksShort": "Clermont County parks don't allow inflatables. Woodland Mound (Great Parks) does, with approval.",
+        "parksLong": "Clermont County Park District shelters don't allow inflatables. Woodland Mound, a Great Parks of Hamilton County park in Anderson Township, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). Most Amelia parties happen in the backyard, which needs no reservation."
+      }
+    },
+    {
+      "slug": "bethel", "label": "Bethel", "name": "Bethel", "state": "OH", "lat": 38.9637, "lng": -84.0808,
+      "page": {
+        "heading": "Bethel's bounce house crew",
+        "intro": "Out in eastern Clermont County, Bethel's roomy yards are made for big inflatables. We deliver, set up and sanitize bounce houses, combos, water slides and obstacle courses for Bethel birthdays, family reunions and church picnics.",
+        "parksShort": "Clermont County parks don't allow inflatables, so a backyard is usually the way to go.",
+        "parksLong": "Clermont County Park District shelters don't allow inflatables, and we haven't confirmed the rules for Bethel's village parks, so check with the village first. Most Bethel parties happen in the backyard, which needs no reservation, and there's plenty of room out here."
+      }
+    },
+    {
+      "slug": "blue_ash", "label": "Blue Ash", "name": "Blue Ash", "state": "OH", "lat": 39.232, "lng": -84.3783,
+      "page": {
+        "heading": "Bounce house rentals in Blue Ash",
+        "intro": "Blue Ash families celebrate big, from backyard birthdays to cul-de-sac block parties and office picnics. We bring clean, inspected bounce houses, slides and obstacle courses to every corner of Blue Ash, with setup, takedown and a safety walk-around included.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Blue Ash park.",
+        "parksLong": "Sharon Woods, a nearby Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Blue Ash's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "cincinnati", "label": "Cincinnati", "name": "Cincinnati", "state": "OH", "lat": 39.1013, "lng": -84.5127,
+      "page": {
+        "heading": "Bounce houses all over Cincinnati",
+        "intro": "From Hyde Park and Oakley to Mt. Washington, Westwood and Price Hill, we deliver bounce houses, water slides, combos and obstacle courses all over Cincinnati. Backyards, church lots and school fields: if it's flat and has room, we'll make it a party.",
+        "parksShort": "Cincinnati Parks allows bounce houses at its group picnic areas (Mt. Airy Forest, Alms Park), not its picnic shelters.",
+        "parksLong": "Cincinnati Parks allows bounce houses at its group picnic areas: Area 22 and Stone Steps in Mt. Airy Forest, and the Alms Park group picnic area. They aren't allowed at its smaller picnic shelters (Drake, French, Jackson Hill, Mt. Echo, Rapid Run and McFarlan Woods). There's no electricity, so add a generator, which must sit on concrete, and Cincinnati Parks doesn't refund reservations."
+      }
+    },
+    {
+      "slug": "covington", "label": "Covington KY", "name": "Covington", "state": "KY", "lat": 39.0832, "lng": -84.5108,
+      "page": {
+        "heading": "Bounce house rentals in Covington, KY",
+        "intro": "Just across the river, we bring the bounce to Covington, from MainStrasse Village to Latonia. Birthday parties, church festivals and neighborhood get-togethers all get the same clean, inspected inflatables and full setup and takedown.",
+        "parksShort": "Park rules vary in Northern Kentucky. Check with the city before booking a park.",
+        "parksLong": "Park rules vary across Covington and Kenton County parks, and we haven't confirmed them, so check with the park before you book. A backyard or private lot is the easiest option: no reservation needed."
+      }
+    },
+    {
+      "slug": "delhi", "label": "Delhi", "name": "Delhi Township", "state": "OH", "lat": 39.1013, "lng": -84.6353,
+      "page": {
+        "heading": "Bounce house rentals in Delhi Township",
+        "intro": "On Cincinnati's west side, Delhi Township's backyards are perfect for a bounce house or water slide. We deliver across Delhi for birthdays, graduation parties and summer block parties, and our crew handles all the setup and takedown.",
+        "parksShort": "Embshoff Woods (Great Parks) in Delhi Township allows inflatables with approval.",
+        "parksLong": "Embshoff Woods, a Great Parks of Hamilton County park right in Delhi Township, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Delhi Township's own parks, so check with the township first."
+      }
+    },
+    {
+      "slug": "eastgate", "label": "Eastgate", "name": "Eastgate", "state": "OH", "lat": 39.1033, "lng": -84.2777,
+      "page": {
+        "heading": "Eastgate's neighborhood bounce crew",
+        "intro": "Eastgate, in Union Township right off I-275, is just minutes from our warehouse, so setups here are quick and on time. We bring bounce houses, combos, water slides and obstacle courses to Eastgate-area backyards for every kind of celebration.",
+        "parksShort": "Clermont County parks don't allow inflatables. Woodland Mound (Great Parks) does, with approval.",
+        "parksLong": "Clermont County Park District shelters don't allow inflatables, and we haven't confirmed the rules for Union Township's own parks, so check with the township first. Woodland Mound, a Great Parks of Hamilton County park in nearby Anderson Township, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator)."
+      }
+    },
+    {
+      "slug": "evendale", "label": "Evendale", "name": "Evendale", "state": "OH", "lat": 39.2562, "lng": -84.418,
+      "page": {
+        "heading": "Bounce house rentals in Evendale",
+        "intro": "Evendale may be best known as home to GE Aerospace, but on weekends it's all about backyard birthdays. We deliver bounce houses, slides and obstacle courses across Evendale, cleaned and inspected, with setup and takedown included.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the village before using an Evendale park.",
+        "parksLong": "Sharon Woods, a Great Parks of Hamilton County park next door, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Evendale's village parks, so check with the village first."
+      }
+    },
+    {
+      "slug": "fairfield", "label": "Fairfield", "name": "Fairfield", "state": "OH", "lat": 39.3459, "lng": -84.5605,
+      "page": {
+        "heading": "Bounce house rentals in Fairfield",
+        "intro": "Up in Butler County, Fairfield families throw some of the best backyard parties around. We bring bounce houses, combos, water slides and obstacle courses to Fairfield for birthdays, graduation parties and church events.",
+        "parksShort": "Winton Woods (Great Parks) allows inflatables with approval. Check with the city before using a Fairfield park.",
+        "parksLong": "Winton Woods, a Great Parks of Hamilton County park south of Fairfield, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Fairfield's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "florence", "label": "Florence KY", "name": "Florence", "state": "KY", "lat": 38.9989, "lng": -84.6266,
+      "page": {
+        "heading": "Bounce house rentals in Florence, KY",
+        "intro": "Home of the famous Florence Y'all water tower, Florence is one of our favorite Northern Kentucky stops. We deliver bounce houses, water slides and obstacle courses across Florence and Boone County, with full setup and takedown.",
+        "parksShort": "Park rules vary in Northern Kentucky. Check with the city or county before booking a park.",
+        "parksLong": "Park rules vary across Florence and Boone County parks, and we haven't confirmed them, so check with the park before you book. A backyard is the easiest option: no reservation needed."
+      }
+    },
+    {
+      "slug": "fort_thomas", "label": "Fort Thomas KY", "name": "Fort Thomas", "state": "KY", "lat": 39.0786, "lng": -84.4483,
+      "page": {
+        "heading": "Bounce house rentals in Fort Thomas, KY",
+        "intro": "Fort Thomas' tree-lined neighborhoods and backyards are a great fit for a bounce house or combo. We deliver across Fort Thomas and Campbell County for birthdays, block parties and school events, with a safety walk-around before we leave.",
+        "parksShort": "Park rules vary in Northern Kentucky. Check with the city before booking a park.",
+        "parksLong": "Park rules vary across Fort Thomas and Campbell County parks, including Tower Park, and we haven't confirmed them, so check with the city before you book. A backyard is the easiest option: no reservation needed."
+      }
+    },
+    {
+      "slug": "glendale", "label": "Glendale", "name": "Glendale", "state": "OH", "lat": 39.2722, "lng": -84.4584,
+      "page": {
+        "heading": "Bounce house rentals in Glendale",
+        "intro": "Glendale, one of the country's first planned communities, has big historic yards that are perfect for a party. We bring clean, inspected bounce houses, slides and obstacle courses to Glendale, with setup and takedown handled by our crew.",
+        "parksShort": "Winton Woods (Great Parks) allows inflatables with approval. Check with the village before using a Glendale park.",
+        "parksLong": "Winton Woods, a nearby Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Glendale's village parks, so check with the village first."
+      }
+    },
+    {
+      "slug": "independence", "label": "Independence KY", "name": "Independence", "state": "KY", "lat": 38.9431, "lng": -84.5441,
+      "page": {
+        "heading": "Bounce house rentals in Independence, KY",
+        "intro": "In southern Kenton County, Independence has the big yards that big inflatables need. We deliver bounce houses, water slides, combos and obstacle courses across Independence for birthdays, reunions and church picnics.",
+        "parksShort": "Park rules vary in Northern Kentucky. Check with the city or county before booking a park.",
+        "parksLong": "Park rules vary across Independence and Kenton County parks, and we haven't confirmed them, so check with the park before you book. A backyard is the easiest option: no reservation needed."
+      }
+    },
+    {
+      "slug": "indian_hill", "label": "Indian Hill", "name": "Indian Hill", "state": "OH", "lat": 39.1892, "lng": -84.3381,
+      "page": {
+        "heading": "Bounce house rentals in Indian Hill",
+        "intro": "Indian Hill's large, wooded lots have room for our biggest slides and obstacle courses, and it's just a few minutes from our warehouse. We deliver, set up and take down everything, so you can focus on the party.",
+        "parksShort": "Lake Isabella (Great Parks) allows inflatables with approval. Check with the city before using an Indian Hill park.",
+        "parksLong": "Lake Isabella, a Great Parks of Hamilton County park near Indian Hill, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Indian Hill's own parks and preserves, so check with the city first. Most Indian Hill parties happen at home, where there's plenty of room."
+      }
+    },
+    {
+      "slug": "madeira", "label": "Madeira", "name": "Madeira", "state": "OH", "lat": 39.1909, "lng": -84.3636,
+      "page": {
+        "heading": "Bounce house rentals in Madeira",
+        "intro": "Madeira's friendly neighborhoods are made for backyard birthdays and street-wide block parties. We bring bounce houses, combos and slides to Madeira, cleaned and inspected before every rental, with setup and takedown included.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Madeira park.",
+        "parksLong": "Sharon Woods, a Great Parks of Hamilton County park north of Madeira, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Madeira's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "mariemont", "label": "Mariemont", "name": "Mariemont", "state": "OH", "lat": 39.1457, "lng": -84.3744,
+      "page": {
+        "heading": "Backyard bounce houses in Mariemont",
+        "intro": "Mariemont, the planned village from the 1920s, is just down the road from our warehouse. We set up bounce houses and combos in Mariemont backyards for birthdays and family celebrations, and we know how to fit them into cozy village lots.",
+        "parksShort": "Mariemont doesn't allow inflatables on village property, so plan on a backyard.",
+        "parksLong": "The Village of Mariemont doesn't allow inflatables on village property, so Mariemont parties happen in the backyard. Need a park? Woodland Mound, a Great Parks of Hamilton County park, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator)."
+      }
+    },
+    {
+      "slug": "mason", "label": "Mason", "name": "Mason", "state": "OH", "lat": 39.3601, "lng": -84.3099,
+      "page": {
+        "heading": "Bounce house rentals in Mason",
+        "intro": "Home of Kings Island, Mason knows how to have fun. We bring that same energy to Mason backyards with bounce houses, water slides, combos and obstacle courses, all cleaned, inspected and set up by our crew.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Mason park.",
+        "parksLong": "Sharon Woods, a Great Parks of Hamilton County park south of Mason, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Mason's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "montgomery", "label": "Montgomery", "name": "Montgomery", "state": "OH", "lat": 39.2282, "lng": -84.354,
+      "page": {
+        "heading": "Bounce house rentals in Montgomery",
+        "intro": "From the historic Heritage District to quiet cul-de-sacs, Montgomery is full of great party spots. We deliver bounce houses, slides and obstacle courses across Montgomery for birthdays, graduations and neighborhood get-togethers.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Montgomery park.",
+        "parksLong": "Sharon Woods, a nearby Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Montgomery's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "newport", "label": "Newport KY", "name": "Newport", "state": "KY", "lat": 39.0889, "lng": -84.492,
+      "page": {
+        "heading": "Bounce house rentals in Newport, KY",
+        "intro": "Home of Newport on the Levee, Newport is just across the river from Cincinnati. We bring bounce houses, combos and slides to Newport backyards, churches and community events, with full setup and takedown.",
+        "parksShort": "Park rules vary in Northern Kentucky. Check with the city before booking a park.",
+        "parksLong": "Park rules vary across Newport and Campbell County parks, and we haven't confirmed them, so check with the city before you book. A backyard or private lot is the easiest option: no reservation needed."
+      }
+    },
+    {
+      "slug": "newtown", "label": "Newtown", "name": "Newtown", "state": "OH", "lat": 39.1245, "lng": -84.3616,
+      "page": {
+        "heading": "Newtown's bounce house crew",
+        "intro": "Tucked along the Little Miami River, Newtown is right next door to our warehouse, so Newtown parties get some of our quickest setups. We deliver bounce houses, water slides and obstacle courses for every kind of celebration.",
+        "parksShort": "Woodland Mound (Great Parks) allows inflatables with approval. Check with the village before using a Newtown park.",
+        "parksLong": "Woodland Mound, a Great Parks of Hamilton County park in nearby Anderson Township, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). Anderson Park District parks don't allow them, and we haven't confirmed the rules for Newtown's village parks, so check with the village first."
+      }
+    },
+    {
+      "slug": "norwood", "label": "Norwood", "name": "Norwood", "state": "OH", "lat": 39.1556, "lng": -84.4597,
+      "page": {
+        "heading": "Bounce house rentals in Norwood",
+        "intro": "Norwood, the city in the middle of Cincinnati, packs a lot of fun into its neighborhoods. We bring bounce houses and combos sized for Norwood yards and church lots, with setup, takedown and a safety walk-around included.",
+        "parksShort": "Cincinnati Parks' Alms Park group picnic area allows bounce houses. Check with the city before using a Norwood park.",
+        "parksLong": "We haven't confirmed the rules for Norwood's city parks, so check with the city first. Nearby, Cincinnati Parks allows bounce houses at the Alms Park group picnic area and the Mt. Airy Forest group picnic areas (no electricity, so add a generator, which must sit on concrete; reservations aren't refundable)."
+      }
+    },
+    {
+      "slug": "reading", "label": "Reading", "name": "Reading", "state": "OH", "lat": 39.2237, "lng": -84.4422,
+      "page": {
+        "heading": "Bounce house rentals in Reading",
+        "intro": "Reading's close-knit neighborhoods are perfect for backyard birthdays and block parties. We deliver bounce houses, combos and slides across Reading, cleaned and inspected before every rental, with setup and takedown included.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval. Check with the city before using a Reading park.",
+        "parksLong": "Sharon Woods, a nearby Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Reading's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "sharonville", "label": "Sharonville", "name": "Sharonville", "state": "OH", "lat": 39.2681, "lng": -84.4133,
+      "page": {
+        "heading": "Bounce house rentals in Sharonville",
+        "intro": "Sharonville is home to Sharon Woods, one of the few local parks where you can have a bounce house with the right approval. We deliver bounce houses, slides and obstacle courses across Sharonville, to backyards and park shelters alike.",
+        "parksShort": "Sharon Woods (Great Parks) allows inflatables with approval 15 business days ahead.",
+        "parksLong": "Sharon Woods, a Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Sharonville's city parks, so check with the city first."
+      }
+    },
+    {
+      "slug": "sycamore", "label": "Sycamore Twp", "name": "Sycamore Township", "state": "OH", "lat": 39.2086, "lng": -84.3718,
+      "page": {
+        "heading": "Bounce house rentals in Sycamore Township",
+        "intro": "From Kenwood to the township's quiet side streets, Sycamore Township families love a backyard party. We deliver bounce houses, combos, water slides and obstacle courses, with setup, takedown and a safety walk-around included.",
+        "parksShort": "Sycamore Township parks don't allow inflatables. Sharon Woods (Great Parks) does, with approval.",
+        "parksLong": "Sycamore Township doesn't allow inflatables in its parks, including the Bechtold Park shelters. Sharon Woods, a nearby Great Parks of Hamilton County park, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator)."
+      }
+    },
+    {
+      "slug": "west_chester", "label": "West Chester", "name": "West Chester", "state": "OH", "lat": 39.3359, "lng": -84.4156,
+      "page": {
+        "heading": "Bounce house rentals in West Chester",
+        "intro": "West Chester Township in Butler County is full of big backyards and busy party calendars. We bring bounce houses, water slides, combos and obstacle courses to West Chester, all cleaned, inspected and set up by our crew.",
+        "parksShort": "West Chester Township parks don't allow inflatables. Sharon Woods (Great Parks) does, with approval.",
+        "parksLong": "West Chester Township's park rules don't allow inflatable amusements, so most West Chester parties happen in the backyard. Sharon Woods, a Great Parks of Hamilton County park to the south, allows them with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator)."
+      }
+    },
+    {
+      "slug": "woodlawn", "label": "Woodlawn", "name": "Woodlawn", "state": "OH", "lat": 39.2519, "lng": -84.4701,
+      "page": {
+        "heading": "Bounce house rentals in Woodlawn",
+        "intro": "Woodlawn, a Hamilton County village near Glendale and Evendale, is a great place for a backyard bash. We deliver bounce houses, combos and slides across Woodlawn, with setup, takedown and a safety walk-around included.",
+        "parksShort": "Winton Woods (Great Parks) allows inflatables with approval. Check with the village before using a Woodlawn park.",
+        "parksLong": "Winton Woods, a nearby Great Parks of Hamilton County park, allows inflatables with Great Parks' approval at least 15 business days ahead (no water slides, and no electricity, so add a generator). We haven't confirmed the rules for Woodlawn's village parks, so check with the village first."
+      }
+    },
+    {
+      "slug": "northern_kentucky", "label": "Northern Kentucky", "name": "Northern Kentucky", "state": "KY", "region": true, "lat": 39.02, "lng": -84.56,
+      "_coordsNote": "Region page: point is roughly the middle of Boone, Kenton and Campbell counties.",
+      "page": {
+        "heading": "Bounce house rentals across Northern Kentucky",
+        "intro": "From Covington and Newport to Fort Thomas, Florence and Independence, we bring the bounce across the river to Boone, Kenton and Campbell counties. Every inflatable is cleaned, inspected and set up by our crew, with a safety walk-around before we leave.",
+        "parksShort": "Park rules vary across Northern Kentucky. Check with the city or county before booking a park.",
+        "parksLong": "Park rules vary across Northern Kentucky's city and county parks, and we haven't confirmed them, so check with the park before you book. A backyard or private lot is the easiest option: no reservation needed."
+      }
+    }
+  ]
+}
