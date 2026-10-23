@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan My Event | Bounce Buddies</title>
+<!--
+  Bounce Buddies – "Plan My Event" wizard (full page; paste into the ERS Raw HTML block of /plan-my-event/)
+  - Steps: where -> (parks list if unsure) -> guests -> rentals -> space check -> estimate + checklist.
+  - Prices: "starting at" prices from the ERS categories and exact package prices (Oct 2026). Update ITEMS below if they change.
+  - Park rules researched Oct 2026 from Cincinnati Parks, Great Parks, Clermont, Anderson, Sycamore Twp,
+    West Chester Twp and Mariemont policies. Update PARKS below if they change.
+  - Answers are saved in the visitor's browser, so leaving for the yard checker doesn't lose them.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Matched to the ERS site: header cyan #00c2f5, header button orange #fc9403, footer royal blue #273195 */
+    --sky: #00c2f5; --blue: #273195; --orange: #fc9403; --sun: #f7b51d; --gold-lt: #ffe08a; --red: #e0402f;
+    --ink: #1c2366; --muted: #4f5a8c; --bg: #e6f8fe; --green: #2fa84f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Nunito", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; min-height: 100vh; }
+  h1, h2, h3, .btn, .logo { font-family: "Fredoka", "Nunito", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; }
+
+  /* Top bar (same as the yard checker) */
+  .bar { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 16px; background: var(--sky); color: #fff; border-bottom: 3px solid var(--ink); }
+  .logo img { height: 54px; width: auto; display: block; filter: drop-shadow(2px 3px 0 rgba(28,35,102,.18)); }
+  .bar h1 { font-size: 1.25rem; text-shadow: 2px 2px 0 var(--ink); display: flex; align-items: center; gap: .5rem; }
+  .bar h1 .pill { background: var(--sun); color: var(--ink); text-shadow: none; border: 2px solid var(--ink); border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; }
+  .back { font-weight: 800; font-size: .95rem; color: #fff; }
+  @media (max-width: 640px) { .bar h1 { display: none; } }
+
+  .wrap { width: min(820px, 100% - 32px); margin: 2rem auto 4rem; }
+
+  /* Progress */
+  .progress { display: flex; gap: .4rem; margin-bottom: 1.2rem; }
+  .progress div { flex: 1; text-align: center; font-size: .78rem; font-weight: 800; color: var(--muted); }
+  .progress div::before { content: ""; display: block; height: 8px; border-radius: 999px; background: #c6e3f0; margin-bottom: .35rem; border: 2px solid transparent; }
+  .progress .done::before { background: var(--sky); }
+  .progress .now { color: var(--ink); }
+  .progress .now::before { background: var(--orange); border-color: var(--ink); }
+
+  .card { background: #fff; border: 3px solid var(--ink); border-radius: 26px; box-shadow: 8px 8px 0 var(--ink); padding: 2rem; }
+  @media (max-width: 640px) { .card { padding: 1.3rem; } }
+  .eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .8rem; }
+  .card h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.15; margin: .2rem 0 .4rem; }
+  .lead { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.4rem; }
+
+  /* Big choice tiles */
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .9rem; }
+  .choice { position: relative; text-align: left; background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 1rem 1.1rem; cursor: pointer; transition: transform .12s, box-shadow .12s, background .12s; display: flex; flex-direction: column; gap: .2rem; }
+  .choice:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 var(--ink); }
+  .choice .emo { font-size: 2rem; line-height: 1.1; }
+  .choice b { font-family: "Fredoka"; font-weight: 600; font-size: 1.12rem; }
+  .choice small { color: var(--muted); font-weight: 600; font-size: .88rem; }
+  .choice .price { font-family: "Fredoka"; font-weight: 700; color: var(--blue); }
+  .choice.on { background: #fff6d6; box-shadow: 4px 4px 0 var(--orange); }
+  .choice.on::after { content: "✓"; position: absolute; top: 10px; right: 12px; width: 26px; height: 26px; border-radius: 50%; background: var(--orange); color: #fff; font-weight: 800; display: grid; place-items: center; border: 2px solid var(--ink); }
+  .group-title { font-family: "Fredoka"; font-weight: 600; font-size: 1.05rem; margin: 1.4rem 0 .6rem; display: flex; align-items: center; gap: .5rem; }
+  .group-title:first-of-type { margin-top: 0; }
+
+  /* Buttons + nav */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; font-weight: 600; font-size: 1rem; padding: .7rem 1.3rem; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; transition: transform .12s, box-shadow .12s; white-space: nowrap; background: #fff; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: 3px 3px 0 var(--ink); }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-sun { background: var(--sun); }
+  .nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.8rem; flex-wrap: wrap; }
+  .linkish { background: none; border: none; font-weight: 800; color: var(--muted); cursor: pointer; padding: .3rem 0; }
+  .linkish:hover { color: var(--ink); }
+
+  /* Notes */
+  .note { border-radius: 16px; padding: .9rem 1.1rem; font-size: .95rem; margin-top: 1.1rem; border: 2px solid; }
+  .note.tip { background: #e8f8fe; border-color: #9fdcf2; }
+  .note.warn { background: #fff4e0; border-color: #f5c97a; }
+  .note b { font-weight: 800; }
+  .total-bar { margin-top: 1.2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; background: var(--ink); color: #fff; border-radius: 16px; padding: .8rem 1.1rem; font-weight: 800; }
+  .total-bar span:last-child { font-family: "Fredoka"; font-size: 1.3rem; color: var(--sun); }
+
+  /* Guests */
+  .guest-input { display: flex; align-items: center; gap: .8rem; margin-top: 1.2rem; font-weight: 800; flex-wrap: wrap; }
+  .guest-input input { width: 120px; font: inherit; font-weight: 800; font-size: 1.2rem; padding: .5rem .8rem; border: 3px solid var(--ink); border-radius: 14px; }
+
+  /* Parks list */
+  .parks { display: grid; gap: .9rem; }
+  .park { border: 2px solid var(--ink); border-radius: 16px; padding: 1rem 1.1rem; }
+  .park h3 { font-size: 1.1rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .badge { font-family: "Nunito"; font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px; }
+  .badge.yes { background: #dff5e5; color: var(--green); }
+  .badge.ok { background: #fff1cf; color: #9a6400; }
+  .badge.no { background: #ffe3e0; color: #b4231a; }
+  .park ul { margin: .5rem 0 0 1.1rem; color: var(--muted); font-size: .93rem; }
+  .park li { margin-bottom: .2rem; }
+  .park .contact { margin-top: .5rem; font-size: .9rem; font-weight: 700; }
+  .park .contact a { color: var(--blue); text-decoration: underline; }
+  .park.no-list { background: #fff8f7; }
+  .fine { font-size: .82rem; color: var(--muted); margin-top: .8rem; }
+
+  /* Space */
+  .space-box { display: grid; grid-template-columns: auto 1fr; gap: 1.2rem; align-items: center; background: var(--bg); border-radius: 18px; padding: 1.1rem 1.3rem; }
+  .space-box .big { font-family: "Fredoka"; font-weight: 700; font-size: 2.2rem; color: var(--blue); line-height: 1; }
+  .space-list { font-size: .93rem; color: var(--muted); }
+
+  /* Summary */
+  .estimate { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; background: linear-gradient(135deg, var(--blue), #0b8fd8); color: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 1.2rem 1.4rem; }
+  .estimate .amt { font-family: "Fredoka"; font-weight: 700; font-size: clamp(1.8rem, 5vw, 2.6rem); color: var(--sun); line-height: 1; text-shadow: 2px 2px 0 var(--ink); }
+  .estimate small { opacity: .9; font-weight: 600; }
+  .lines { margin: 1rem 0 0; display: grid; gap: .35rem; }
+  .lines div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px dashed #cfe3ee; padding-bottom: .35rem; font-weight: 600; }
+  .lines div span:last-child { font-weight: 800; white-space: nowrap; }
+  .facts { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .facts span { background: var(--bg); border: 2px solid #b9dcec; border-radius: 999px; padding: .25rem .75rem; font-weight: 700; font-size: .88rem; }
+  .checklist { list-style: none; display: grid; gap: .55rem; margin-top: .8rem; }
+  .checklist label { display: flex; gap: .7rem; align-items: flex-start; cursor: pointer; padding: .55rem .7rem; border-radius: 12px; border: 2px solid #d6e9f2; }
+  .checklist input { margin-top: .25rem; width: 20px; height: 20px; accent-color: var(--orange); flex-shrink: 0; }
+  .checklist .done label { background: #f3fbf5; border-color: #bfe6c9; }
+  .checklist .done span { text-decoration: line-through; color: var(--muted); }
+  .checklist small { display: block; color: var(--muted); font-weight: 600; }
+  .section-title { font-family: "Fredoka"; font-size: 1.3rem; margin-top: 1.8rem; }
+  .actions { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; font-weight: 800; padding: .7rem 1.2rem; border-radius: 999px; box-shadow: 3px 3px 0 var(--orange); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  @media print { .bar, .progress, .nav, .actions, .toast { display: none !important; } .card { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a href="/" class="logo"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/editor/logo-copy.png" alt="Bounce Buddies Event Rental"></a>
+  <h1>Plan my event <span class="pill">Free planner</span></h1>
+  <a href="/" class="back" id="backLink">← Back to site</a>
+</header>
+
+<main class="wrap">
+  <div class="progress" id="progress"></div>
+  <div class="card" id="card"></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  /* ---------- Data you may want to update ---------- */
+  const PHONE = '(513) 305-1758', TEL = 'tel:5133051758';
+  const BOOK_URL = '/order-by-date/?show_instructions=1';
+  const YARD_URL = '/yard-checker/';
+
+  // Category prices are "starting at" prices; packages are exact. Footprints in feet (from the FAQ; obstacle course is approximate).
+  const ITEMS = [
+    { id: 'bounce',   group: 'inflatable', emoji: '🏰', name: 'Bounce House',         from: 225, w: 13, l: 13, note: '13 × 13 ft' },
+    { id: 'combo',    group: 'inflatable', emoji: '🎪', name: 'Bounce House Combo',   from: 325, w: 13, l: 31, note: 'Bounce + slide, 13 × 31 ft' },
+    { id: 'slide',    group: 'inflatable', emoji: '🌊', name: 'Water or Dry Slide',   from: 300, w: 20, l: 45, note: 'Up to 20 × 45 ft', water: true },
+    { id: 'obstacle', group: 'inflatable', emoji: '🏁', name: 'Obstacle Course',      from: 350, w: 10, l: 40, note: 'About 10 × 40 ft' },
+    { id: 'games',    group: 'addon',      emoji: '🎯', name: 'Interactive Games',    from: 40,  note: 'Yard & carnival games' },
+    { id: 'conc',     group: 'addon',      emoji: '🍿', name: 'Concessions & Add-Ons',from: 50,  note: 'Popcorn, snow cones & more' },
+    { id: 'pk-movie', group: 'package',    emoji: '🎬', name: 'Family Movie Night',   price: 200, note: 'Screen, projector, speaker, popcorn' },
+    { id: 'pk-deluxe',group: 'package',    emoji: '🏰', name: 'Deluxe Bounce House Party', price: 300, w: 13, l: 13, note: 'Bounce house, frame game, popcorn' },
+    { id: 'pk-ocean', group: 'package',    emoji: '🌊', name: 'Ocean Battle Party',   price: 475, w: 10, l: 30, note: "30' wet/dry obstacle course + more", water: true },
+    { id: 'pk-ult',   group: 'package',    emoji: '🌈', name: 'Ultimate Event',       price: 750, note: "24' dual-lane slide, inflatable game + more", askSpace: true }
+  ];
+  const RANGE = 1.5;          // "starting at" prices vary by size, so the high end of the estimate is 1.5x
+  const CLEARANCE = 5;        // ft of open space needed on every side
+
+  const PARKS = {
+    yes: [
+      { name: 'Mt. Airy Forest – Area 22 Group Picnic Area', where: '4700 Trail Ridge Rd, Cincinnati 45223', sys: 'Cincinnati Parks' },
+      { name: 'Mt. Airy Forest – Stone Steps Group Picnic Area', where: '1500 Stone Steps Ridge Rd, Cincinnati 45223', sys: 'Cincinnati Parks' },
+      { name: 'Alms Park – Group Picnic Area', where: '711 Alms Park Ln, Cincinnati 45226', sys: 'Cincinnati Parks' }
+    ],
+    yesRules: [
+      'Bounce houses are allowed at these group picnic areas (not at Cincinnati Parks’ smaller picnic shelters).',
+      'About $135 Mon–Thu, $160 Fri–Sun & holidays; booked April 15 – October 15.',
+      'No electricity: we’ll bring a generator, and it must sit on concrete.',
+      'Cincinnati Parks gives no refunds on reservations.'
+    ],
+    approval: [
+      { name: 'Great Parks of Hamilton County shelters', where: 'Winton Woods, Sharon Woods, Woodland Mound, Lake Isabella, Miami Whitewater Forest, Embshoff Woods, Shawnee Lookout, Fernbank' }
+    ],
+    approvalRules: [
+      'Inflatables must be pre-approved by Great Parks at least 15 business days before your event.',
+      'Water attractions (water slides) are not allowed.',
+      'No electricity at picnic shelters, so plan on a generator.',
+      'Refunds only if you cancel 30+ days ahead.'
+    ],
+    no: [
+      'Clermont County Park District shelters (incl. Shor Park in Milford)',
+      'Anderson Park District parks',
+      'Sycamore Township parks',
+      'West Chester Township parks',
+      'Village of Mariemont property',
+      'Cincinnati Parks picnic shelters (Drake, French, Jackson Hill, Mt. Echo, Rapid Run, McFarlan Woods)'
+    ]
+  };
+
+  /* ---------- State (saved in this browser) ---------- */
+  const KEY = 'bbPlanMyEvent';
+  const fresh = () => ({ step: 'where', venue: null, guests: null, items: [], spaceChecked: false, done: {} });
+  let S = fresh();
+  try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved && saved.step) S = Object.assign(fresh(), saved); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+  const STEPS = [['where', 'Where'], ['guests', 'Guests'], ['items', 'Rentals'], ['space', 'Space'], ['plan', 'Your plan']];
+  const card = document.getElementById('card'), progress = document.getElementById('progress');
+  const $ = s => card.querySelector(s);
+  const money = n => '$' + Math.round(n).toLocaleString();
+  const byId = id => ITEMS.find(i => i.id === id);
+  const chosen = () => S.items.map(byId).filter(Boolean);
+  const PRESET_LABELS = { 15: 'up to 15', 30: '16–30', 60: '31–60', 100: '61–100', 150: '100+' };
+  const guestText = () => (S.gPreset && PRESET_LABELS[S.guests] ? PRESET_LABELS[S.guests] : 'about ' + S.guests) + ' guests';
+
+  function go(step) { S.step = step; save(); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  function renderProgress() {
+    const at = S.step === 'parks' ? 0 : STEPS.findIndex(s => s[0] === S.step);
+    progress.innerHTML = STEPS.map((s, i) => `<div class="${i < at ? 'done' : i === at ? 'now' : ''}">${s[1]}</div>`).join('');
+  }
+
+  function estimate() {
+    let low = 0, high = 0;
+    chosen().forEach(i => { if (i.price) { low += i.price; high += i.price; } else { low += i.from; high += i.from * RANGE; } });
+    return { low, high: Math.round(high / 5) * 5 };
+  }
+  function footprint() {
+    const units = chosen().filter(i => i.w);
+    const area = units.reduce((a, i) => a + (i.w + CLEARANCE * 2) * (i.l + CLEARANCE * 2), 0);
+    return { units, area };
+  }
+
+  /* ---------- Steps ---------- */
+  const views = {
+    where() {
+      card.innerHTML = `
+        <div class="eyebrow">Step 1 of 5</div>
+        <h2>Where's the party?</h2>
+        <p class="lead">This helps us plan power, space and anything you'll need to reserve.</p>
+        <div class="choices">
+          <button class="choice ${S.venue === 'home' ? 'on' : ''}" data-v="home"><span class="emo">🏡</span><b>At a home</b><small>Backyard, driveway or private property</small></button>
+          <button class="choice ${S.venue === 'park' ? 'on' : ''}" data-v="park"><span class="emo">🌳</span><b>Park or public space</b><small>Park shelter, school, church, community space</small></button>
+          <button class="choice" data-v="unsure"><span class="emo">🤔</span><b>I don't know yet</b><small>Show me local parks that allow bounce houses</small></button>
+        </div>`;
+      card.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+        if (b.dataset.v === 'unsure') return go('parks');
+        S.venue = b.dataset.v; go('guests');
+      });
+    },
+
+    parks() {
+      const list = (arr) => arr.map(r => `<li>${r}</li>`).join('');
+      card.innerHTML = `
+        <div class="eyebrow">Finding a spot</div>
+        <h2>Cincinnati-area parks & bounce houses</h2>
+        <p class="lead">Many local parks don't allow inflatables, so here's where you can (and can't) have one.</p>
+        <div class="parks">
+          <div class="park">
+            <h3>✅ Allowed <span class="badge yes">Cincinnati Parks</span></h3>
+            ${PARKS.yes.map(p => `<div style="margin-top:.5rem"><b>${p.name}</b><br><small style="color:var(--muted)">${p.where}</small></div>`).join('')}
+            <ul>${list(PARKS.yesRules)}</ul>
+            <div class="contact">Reserve: <a href="https://www.cincinnati-oh.gov/cincyparks/visit-a-park/reserve-a-spot/" target="_blank" rel="noopener">Cincinnati Parks “Reserve a Spot”</a></div>
+          </div>
+          <div class="park">
+            <h3>👍 Allowed with approval <span class="badge ok">Great Parks</span></h3>
+            ${PARKS.approval.map(p => `<div style="margin-top:.5rem"><b>${p.name}</b><br><small style="color:var(--muted)">${p.where}</small></div>`).join('')}
+            <ul>${list(PARKS.approvalRules)}</ul>
+            <div class="contact">Reserve & request approval: <a href="https://www.greatparks.org/recreation/picnicking" target="_blank" rel="noopener">greatparks.org</a> · <a href="tel:5135217275">(513) 521-7275</a></div>
+          </div>
+          <div class="park no-list">
+            <h3>🚫 Inflatables not allowed <span class="badge no">Heads up</span></h3>
+            <ul>${list(PARKS.no)}</ul>
+          </div>
+        </div>
+        <p class="fine">Park rules change. Always confirm with the park before you book, and get any approval in writing. Checked October 2026.</p>
+        <div class="note tip">🏡 <b>Have a yard?</b> A backyard is usually the easiest option: no reservation, and most homes have an outdoor outlet so you won't need a generator.</div>
+        <div class="nav">
+          <button class="linkish" data-go="where">← Back</button>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button class="btn" data-venue="home">🏡 I'll do it at home</button>
+            <button class="btn btn-orange" data-venue="park">🌳 I'll use a park →</button>
+          </div>
+        </div>`;
+      $('[data-go]').onclick = () => go('where');
+      card.querySelectorAll('[data-venue]').forEach(b => b.onclick = () => { S.venue = b.dataset.venue; go('guests'); });
+    },
+
+    guests() {
+      const presets = [[15, 'Up to 15', 'Small & sweet'], [30, '16–30', 'Classic birthday'], [60, '31–60', 'Big backyard bash'], [100, '61–100', 'Block party'], [150, '100+', 'School or community event']];
+      card.innerHTML = `
+        <div class="eyebrow">Step 2 of 5</div>
+        <h2>How many guests are coming?</h2>
+        <p class="lead">Kids and adults together. A rough guess is fine.</p>
+        <div class="choices">${presets.map(p => `<button class="choice ${S.gPreset && S.guests === p[0] ? 'on' : ''}" data-g="${p[0]}"><b>${p[1]}</b><small>${p[2]}</small></button>`).join('')}</div>
+        <div class="guest-input"><label for="gExact">Or enter an exact number:</label><input id="gExact" type="number" min="1" max="2000" placeholder="e.g. 40" value="${S.guests && !S.gPreset ? S.guests : ''}"></div>
+        <div class="nav"><button class="linkish" data-back>← Back</button><button class="btn btn-orange" data-next ${S.guests ? '' : 'disabled'}>Next: rentals →</button></div>`;
+      card.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { S.guests = +b.dataset.g; S.gPreset = true; save(); views.guests(); });
+      $('#gExact').oninput = e => { const n = parseInt(e.target.value, 10); S.guests = n > 0 ? n : null; S.gPreset = false; save(); card.querySelectorAll('[data-g]').forEach(b => b.classList.remove('on')); $('[data-next]').disabled = !S.guests; };
+      $('[data-back]').onclick = () => go('where');
+      $('[data-next]').onclick = () => go('items');
+    },
+
+    items() {
+      const tile = i => `<button class="choice ${S.items.includes(i.id) ? 'on' : ''}" data-i="${i.id}"><span class="emo">${i.emoji}</span><b>${i.name}</b><small>${i.note}</small><span class="price">${i.price ? money(i.price) : 'from ' + money(i.from)}</span></button>`;
+      const g = grp => ITEMS.filter(i => i.group === grp).map(tile).join('');
+      const n = S.guests || 0, inflatables = chosen().filter(i => i.w || i.askSpace).length;
+      const suggest = n <= 30 ? 1 : n <= 60 ? 2 : 3;
+      const tips = [];
+      if (n > 30 && inflatables < suggest) tips.push(`🎈 <b>Tip:</b> with ${guestText()}, ${suggest} attractions keep lines short. An obstacle course is great for big groups.`);
+      if (n > 100) tips.push(`📞 <b>Big event?</b> Call us at <a href="${TEL}" style="text-decoration:underline">${PHONE}</a> for a custom quote.`);
+      if (S.venue === 'park' && chosen().some(i => i.water)) tips.push(`💧 <b>Heads up:</b> many parks don't allow water attractions (Great Parks doesn't). Ask for the dry version, or check with your park.`);
+      const e = estimate();
+      card.innerHTML = `
+        <div class="eyebrow">Step 3 of 5</div>
+        <h2>What sounds fun?</h2>
+        <p class="lead">Pick as many as you like. Prices are starting prices; we'll help you choose exact units.</p>
+        <div class="group-title">🎈 Inflatables</div><div class="choices">${g('inflatable')}</div>
+        <div class="group-title">🎯 Games & treats</div><div class="choices">${g('addon')}</div>
+        <div class="group-title">🎁 Party packages <small style="color:var(--muted);font-family:Nunito;font-weight:700">bundle & save</small></div><div class="choices">${g('package')}</div>
+        ${tips.map(t => `<div class="note ${t.includes('Heads up') ? 'warn' : 'tip'}">${t}</div>`).join('')}
+        <div class="total-bar"><span>${S.items.length ? S.items.length + ' selected' : 'Nothing selected yet'}</span><span>${S.items.length ? (e.low === e.high ? money(e.low) : money(e.low) + ' – ' + money(e.high)) : ''}</span></div>
+        <div class="nav"><button class="linkish" data-back>← Back</button><button class="btn btn-orange" data-next ${S.items.length ? '' : 'disabled'}>Next: check the space →</button></div>`;
+      card.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
+        const id = b.dataset.i; S.items = S.items.includes(id) ? S.items.filter(x => x !== id) : [...S.items, id]; save();
+        const y = window.scrollY; views.items(); window.scrollTo(0, y);
+      });
+      $('[data-back]').onclick = () => go('guests');
+      $('[data-next]').onclick = () => go('space');
+    },
+
+    space() {
+      const f = footprint(), ask = chosen().filter(i => i.askSpace);
+      const place = S.venue === 'park' ? 'the park site' : 'your yard';
+      card.innerHTML = `
+        <div class="eyebrow">Step 4 of 5</div>
+        <h2>Will it fit?</h2>
+        <p class="lead">Each inflatable needs flat ground plus ${CLEARANCE} ft of open space on every side.</p>
+        ${f.units.length ? `
+        <div class="space-box">
+          <div class="big">~${f.area.toLocaleString()}<br><small style="font-size:.9rem;color:var(--muted)">sq ft</small></div>
+          <div class="space-list">${f.units.map(i => `<div>${i.emoji} ${i.name}: ${i.w} × ${i.l} ft → needs ${i.w + CLEARANCE * 2} × ${i.l + CLEARANCE * 2} ft</div>`).join('')}</div>
+        </div>` : `<div class="note tip">🎉 Nothing you picked needs a big footprint. Just leave room for tables and a power source.</div>`}
+        ${ask.length ? `<div class="note tip">📏 We'll confirm the exact space needed for the ${ask.map(i => i.name).join(', ')} when you book.</div>` : ''}
+        <div class="note tip" style="margin-top:1.2rem">
+          <b>Check ${place} on a satellite map.</b> Our Will It Fit tool lets you drop to-scale rentals onto your address and check that our 100 ft cords reach an outlet. It opens in a new tab, so your plan stays here.
+          <div style="margin-top:.8rem"><a class="btn btn-blue" href="${YARD_URL}" target="_blank" rel="noopener" data-yard>📐 Open Will It Fit</a></div>
+        </div>
+        <div class="nav"><button class="linkish" data-back>← Back</button><button class="btn btn-orange" data-next>${S.spaceChecked ? 'See my plan →' : 'Skip for now, see my plan →'}</button></div>`;
+      $('[data-yard]').onclick = () => { S.spaceChecked = true; save(); setTimeout(() => views.space(), 300); };
+      $('[data-back]').onclick = () => go('items');
+      $('[data-next]').onclick = () => go('plan');
+    },
+
+    plan() {
+      const items = chosen(), e = estimate(), f = footprint(), park = S.venue === 'park';
+      const hasWater = items.some(i => i.water), hasInflatable = items.some(i => i.w || i.askSpace);
+      const C = [];   // [id, text, detail]
+      C.push(['date', 'Pick your date and book online', 'Weekends fill up fast. A $50 card deposit holds your date.']);
+      if (park) {
+        C.push(['reserve', 'Reserve a park site that allows inflatables', 'Cincinnati Parks group picnic areas allow them; Great Parks needs approval 15 business days ahead.']);
+        C.push(['approval', 'Get the park’s OK in writing and send us the site details', 'Shelter name, address and where we can unload.']);
+        C.push(['gen', 'Add a generator to your order', 'Parks usually have no electricity. At Cincinnati Parks it must sit on concrete.']);
+        C.push(['early', 'Plan for setup 1–3 hours before your start time', 'Make sure your reservation covers setup time.']);
+      } else {
+        const askSpace = items.filter(i => i.askSpace).map(i => i.name);
+        C.push(['flat', `Pick a flat spot${f.area ? ` with about ${f.area.toLocaleString()} sq ft clear` : ''}${askSpace.length ? (f.area ? ', plus' : ' with') + ' room for the ' + askSpace.join(', ') : ''}`, 'Grass is best; dirt, asphalt and concrete work too. No rocky ground.']);
+        C.push(['power', 'Find an outdoor outlet within 100 ft of each inflatable', 'We bring heavy-duty cords. No outlet nearby? Add a generator.']);
+        C.push(['path', 'Clear a 5 ft wide path from the street to the setup spot', 'Units weigh up to 750 lbs. Stairs or a tiered yard? Give us a call.']);
+        C.push(['mark', 'Mow the grass and mark sprinkler heads and buried lines', 'Clean up anything sharp, pet waste or toys.']);
+        C.push(['hoa', 'Check HOA or neighborhood rules', 'Some communities have rules about inflatables or noise.']);
+      }
+      if (hasWater) C.push(['hose', 'Have a garden hose and spigot nearby', 'Water slides need a steady water supply.']);
+      C.push(['adult', 'Have an adult (18+) on site when we arrive', 'We call the day before, and we do a safety walk-around before we leave.']);
+      if (hasInflatable) C.push(['supervise', 'Plan adult supervision while the inflatables are in use', 'Review our safety rules with your helpers.']);
+      C.push(['pay', 'Bring payment', 'Card or cash. If paying cash, have exact change: drivers don’t carry change.']);
+      C.push(['weather', 'Watch the forecast', 'Cancel 8+ days ahead for a full refund; 2–7 days ahead gets a rain check good for 1 year.']);
+
+      const range = e.low === e.high ? money(e.low) : money(e.low) + ' – ' + money(e.high);
+      card.innerHTML = `
+        <div class="eyebrow">Step 5 of 5</div>
+        <h2>Your party plan 🎉</h2>
+        <p class="lead">Here's a rough estimate and everything to take care of before the big day.</p>
+        <div class="estimate">
+          <div><small>Estimated rentals</small><div class="amt">${range}</div><small>Plus tax. Free delivery & setup within 20 miles.</small></div>
+          <div style="font-size:3rem">${park ? '🌳' : '🏡'}</div>
+        </div>
+        <div class="lines">${items.map(i => `<div><span>${i.emoji} ${i.name}</span><span>${i.price ? money(i.price) : 'from ' + money(i.from)}</span></div>`).join('')}
+          ${park || items.some(i => i.w) ? `<div><span>⚡ Generator ${park ? '(parks have no power)' : '(only if no outlet nearby)'}</span><span>ask us</span></div>` : ''}</div>
+        <div class="facts">
+          <span>${park ? '🌳 Park / public space' : '🏡 At a home'}</span>
+          <span>👥 ${guestText().replace(/^./, c => c.toUpperCase())}</span>
+          ${f.area ? `<span>📐 ~${f.area.toLocaleString()} sq ft needed</span>` : ''}
+          <span>${S.spaceChecked ? '✅ Space checked' : '⏳ Space not checked yet'}</span>
+        </div>
+        <p class="fine">Estimate uses our starting prices; exact prices depend on the units you pick. Delivery beyond 20 miles may add a fee.</p>
+
+        <div class="section-title">✅ Your to-do checklist</div>
+        <ul class="checklist">${C.map(c => `<li class="${S.done[c[0]] ? 'done' : ''}"><label><input type="checkbox" data-c="${c[0]}" ${S.done[c[0]] ? 'checked' : ''}><span>${c[1]}<small>${c[2]}</small></span></label></li>`).join('')}</ul>
+
+        <div class="actions">
+          <a class="btn btn-orange" href="${BOOK_URL}">📅 Check my date & book</a>
+          <a class="btn" href="${TEL}">📞 ${PHONE}</a>
+          <button class="btn btn-sun" data-copy>📋 Copy my plan</button>
+          ${S.spaceChecked ? '' : `<a class="btn" href="${YARD_URL}" target="_blank" rel="noopener" data-yard>📐 Check my space</a>`}
+        </div>
+        <div class="nav"><button class="linkish" data-back>← Back</button><button class="linkish" data-reset>↺ Start over</button></div>`;
+
+      card.querySelectorAll('[data-c]').forEach(cb => cb.onchange = () => { S.done[cb.dataset.c] = cb.checked; save(); cb.closest('li').classList.toggle('done', cb.checked); });
+      const y = $('[data-yard]'); if (y) y.onclick = () => { S.spaceChecked = true; save(); setTimeout(() => views.plan(), 300); };
+      $('[data-back]').onclick = () => go('space');
+      $('[data-reset]').onclick = () => { S = fresh(); save(); go('where'); };
+      $('[data-copy]').onclick = () => {
+        const text = ['My Bounce Buddies party plan',
+          'Where: ' + (park ? 'Park / public space' : 'At a home'),
+          'Guests: ' + guestText(),
+          'Rentals: ' + items.map(i => i.name).join(', '),
+          'Estimate: ' + range + ' plus tax',
+          (f.area ? 'Space needed: ~' + f.area.toLocaleString() + ' sq ft' : ''),
+          'Space checked: ' + (S.spaceChecked ? 'yes' : 'not yet')].filter(Boolean).join('\n');
+        const ok = () => toast('Plan copied! Paste it into your order notes.');
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, ok);
+        else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (err) {} ta.remove(); ok(); }
+      };
+    }
+  };
+
+  function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600); }
+
+  function render() {
+    // Guard against skipping ahead with stale saved state
+    if (['guests', 'items', 'space', 'plan'].includes(S.step) && !S.venue) S.step = 'where';
+    if (['items', 'space', 'plan'].includes(S.step) && !S.guests) S.step = 'guests';
+    if (['space', 'plan'].includes(S.step) && !S.items.length) S.step = 'items';
+    renderProgress();
+    (views[S.step] || views.where)();
+  }
+
+  // "Back to site" acts like the browser back button when the visitor came from another page on this site
+  document.getElementById('backLink').addEventListener('click', e => {
+    try {
+      const from = document.referrer ? new URL(document.referrer) : null;
+      if (from && from.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, '')
+          && from.pathname !== location.pathname && history.length > 1) { e.preventDefault(); history.back(); }
+    } catch (err) {}
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

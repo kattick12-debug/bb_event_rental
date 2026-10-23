@@ -1,0 +1,400 @@
+<!--
+  Bounce Buddies – "Plan My Site" yard checker (paste into an ERS "Raw HTML" block on its own page)
+  - Needs <script> tags to be allowed in the Raw HTML block.
+  - Everything is scoped under .bbp / ids start with "bbp-" so it won't clash with the ERS theme.
+  - Uses free map services (Esri imagery, Photon + OpenStreetMap search). For heavy traffic,
+    switch to a paid provider (Google Maps / Mapbox).
+  - Unit sizes come from the FAQ; the obstacle course size is a placeholder. Edit BBP_UNITS below.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  .bbp {
+    /* Matched to the ERS site: header cyan #00c2f5, header button orange #fc9403, footer royal blue #273195 */
+    --sky: #00c2f5; --blue: #273195; --orange: #fc9403; --sun: #f7b51d; --gold-lt: #ffe08a;
+    --ink: #1c2366; --muted: #4f5a8c; --bg: #e6f8fe; --red: #e5383b; --green: #2fa84f;
+    font-family: "Nunito", system-ui, sans-serif; color: var(--ink); font-size: 16px; line-height: 1.45; text-align: left;
+    max-width: 1240px; margin: 1.5rem auto; padding: 0 16px;
+  }
+  .bbp, .bbp * { box-sizing: border-box; }
+  .bbp h2, .bbp h3, .bbp p, .bbp ul, .bbp li { margin: 0; padding: 0; }
+  /* ERS theme sets p { font-size: 1.1rem; line-height: 1.5rem }; reset it here */
+  .bbp p { font-size: inherit; line-height: inherit; }
+  .bbp h2, .bbp h3, .bbp-btn { font-family: "Fredoka", "Nunito", sans-serif; color: inherit; text-transform: none; letter-spacing: normal; }
+  .bbp ul { list-style: none; }
+
+  .bbp-intro { text-align: center; margin-bottom: 1.5rem; }
+  .bbp-intro .bbp-eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .85rem; }
+  .bbp .bbp-intro h2 { font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.1; margin: .3rem 0 .5rem; font-weight: 700; }
+  .bbp-intro p { color: var(--muted); font-size: 1.1rem; max-width: 620px; margin: 0 auto; }
+
+  .bbp-btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; font-weight: 600; font-size: 1rem; line-height: 1.2; padding: .65rem 1.2rem; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; transition: transform .12s, box-shadow .12s; white-space: nowrap; text-decoration: none; }
+  .bbp-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); text-decoration: none; }
+  .bbp-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .bbp .bbp-orange { background: var(--orange); color: #fff; }
+  .bbp .bbp-white { background: #fff; color: var(--ink); }
+  .bbp .bbp-sun { background: var(--sun); color: var(--ink); }
+  .bbp .bbp-on { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--orange); }
+  .bbp-wide { width: 100%; }
+
+  .bbp-app { display: grid; grid-template-columns: 360px 1fr; height: 780px; border: 3px solid var(--ink); border-radius: 26px; overflow: hidden; box-shadow: 8px 8px 0 var(--ink); background: var(--bg); }
+  .bbp-panel { overflow-y: auto; padding: 1.1rem 1rem 1.5rem; border-right: 3px solid var(--ink); }
+  .bbp-mapwrap { position: relative; }
+  .bbp-map { position: absolute; inset: 0; background: #2a2f4f; }
+  @media (max-width: 860px) {
+    .bbp-app { grid-template-columns: 1fr; height: auto; }
+    .bbp-mapwrap { height: 62vh; min-height: 380px; order: -1; border-bottom: 3px solid var(--ink); }
+    .bbp-panel { border-right: none; }
+  }
+
+  .bbp-step { background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 1rem 1rem 1.1rem; margin-bottom: 1rem; }
+  .bbp .bbp-step h3 { font-size: 1.15rem; display: flex; align-items: center; gap: .55rem; margin-bottom: .75rem; font-weight: 600; }
+  .bbp-n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: #fff; border: 2px solid var(--ink); font-size: 1rem; flex-shrink: 0; }
+  .bbp-step:nth-child(2) .bbp-n { background: var(--blue); }
+  .bbp-step:nth-child(3) .bbp-n { background: var(--sun); color: var(--ink); }
+  .bbp-step:nth-child(4) .bbp-n { background: var(--gold-lt); color: var(--ink); }
+  .bbp .bbp-hint { color: var(--muted); font-size: .88rem; margin-top: .55rem !important; }
+  .bbp-hint.bbp-err { color: var(--red); font-weight: 700; }
+
+  .bbp-search { display: flex; gap: .5rem; margin: 0; }
+  .bbp .bbp-search input { flex: 1; min-width: 0; height: auto; font: inherit; font-weight: 600; padding: .6rem .9rem; border: 3px solid var(--ink); border-radius: 999px; outline: none; background: #fff; color: var(--ink); box-shadow: none; margin: 0; }
+  .bbp .bbp-search input:focus { box-shadow: 0 0 0 3px var(--sky); }
+
+  .bbp-units { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .bbp .bbp-unit { font: inherit; text-align: left; background: #fff; color: var(--ink); border: 2px solid var(--ink); border-radius: 14px; padding: .6rem .7rem; cursor: pointer; display: flex; flex-direction: column; gap: .15rem; transition: transform .12s, background .12s; margin: 0; }
+  .bbp .bbp-unit:hover { transform: translateY(-2px); background: var(--c); }
+  .bbp-unit .bbp-emo { font-size: 1.4rem; }
+  .bbp-unit b { font-family: "Fredoka"; font-weight: 600; font-size: 1rem; }
+  .bbp-unit small { color: var(--muted); font-weight: 700; font-size: .8rem; }
+
+  .bbp-placed { display: grid; gap: .6rem; margin-bottom: .9rem !important; }
+  .bbp-empty { color: var(--muted); font-size: .92rem; text-align: center; padding: .8rem !important; border: 2px dashed #b9d3e3; border-radius: 14px; }
+  .bbp-item { border: 2px solid var(--ink); border-radius: 14px; padding: .65rem .75rem !important; background: #fff; cursor: pointer; }
+  .bbp-item.bbp-sel { box-shadow: 0 0 0 3px var(--c); }
+  .bbp-item-top { display: flex; align-items: center; gap: .5rem; }
+  .bbp-swatch { width: 14px; height: 14px; border-radius: 4px; border: 2px solid var(--ink); background: var(--c); flex-shrink: 0; }
+  .bbp-item-top b { font-family: "Fredoka"; font-weight: 600; flex: 1; }
+  .bbp-item-top small { color: var(--muted); font-weight: 700; }
+  .bbp .bbp-x { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); padding: 0 .2rem; margin: 0; box-shadow: none; }
+  .bbp .bbp-x:hover { color: var(--red); }
+  .bbp-rot { display: flex; align-items: center; gap: .5rem; margin: .45rem 0 0; font-size: .85rem; font-weight: 700; color: var(--muted); }
+  .bbp-rot input { flex: 1; accent-color: var(--orange); margin: 0; }
+  .bbp-rot output { width: 36px; text-align: right; }
+  .bbp-status { margin-top: .45rem; font-size: .85rem; font-weight: 800; padding: .3rem .6rem; border-radius: 10px; }
+  .bbp-status.ok { background: #e2f7e7; color: var(--green); }
+  .bbp-status.bad { background: #ffe3e3; color: var(--red); }
+  .bbp-status.wait { background: #eef4f8; color: var(--muted); }
+
+  .bbp-tools { position: absolute; top: 12px; right: 12px; z-index: 500; }
+  .bbp-legend { position: absolute; left: 12px; bottom: 22px; z-index: 500; background: rgba(255,255,255,.95); border: 2px solid var(--ink); border-radius: 14px; padding: .55rem .75rem; font-size: .8rem; font-weight: 700; display: grid; gap: .3rem; }
+  .bbp-legend div { display: flex; align-items: center; gap: .45rem; }
+  .bbp-lg { width: 22px; height: 12px; border-radius: 3px; }
+  .bbp-lg.solid { background: var(--sun); border: 2px solid var(--ink); }
+  .bbp-lg.dash { border: 2px dashed #fff; background: rgba(255,255,255,.2); outline: 1px solid var(--ink); }
+  .bbp-lg.cord { border: 2px dashed var(--sky); border-radius: 50%; height: 16px; width: 16px; }
+  .bbp-banner { position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: 500; background: var(--ink); color: #fff; font-weight: 800; font-size: .9rem; padding: .5rem 1rem; border-radius: 999px; box-shadow: 3px 3px 0 var(--orange); white-space: nowrap; pointer-events: none; }
+  .bbp-banner[hidden] { display: none; }
+  @media (max-width: 640px) { .bbp-banner { top: auto; bottom: 12px; font-size: .8rem; } .bbp-legend { display: none; } }
+  .bbp .leaflet-container.bbp-placing, .bbp .leaflet-container.bbp-placing .leaflet-interactive { cursor: crosshair !important; }
+  .bbp .leaflet-container img { max-width: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+
+  .bbp-handle span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 3px solid #1c2366; font-size: 15px; cursor: move; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  .bbp-outlet span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #00c2f5; border: 3px solid #1c2366; font-size: 17px; cursor: move; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  .bbp-dot span { display: block; width: 12px; height: 12px; border-radius: 50%; background: #f7b51d; border: 2px solid #1c2366; }
+  .leaflet-tooltip.bbp-tag { background: #1c2366; color: #fff; border: none; border-radius: 999px; font-family: "Fredoka", sans-serif; font-weight: 600; font-size: .85rem; padding: .15rem .6rem; box-shadow: none; }
+  .leaflet-tooltip-top.bbp-tag::before { border-top-color: #1c2366; }
+  .leaflet-tooltip.bbp-tag.bbp-ruler { background: #f7b51d; color: #1c2366; }
+  .leaflet-tooltip-top.bbp-tag.bbp-ruler::before { border-top-color: #f7b51d; }
+
+  .bbp-dialog { border: 3px solid #1c2366; border-radius: 24px; padding: 1.6rem; max-width: 440px; width: calc(100% - 32px); box-shadow: 8px 8px 0 #1c2366; margin: auto; font-family: "Nunito", sans-serif; color: #1c2366; }
+  .bbp-dialog::backdrop { background: rgba(28,35,102,.55); }
+  .bbp-dialog h3 { font-family: "Fredoka", sans-serif; font-size: 1.6rem; margin: 0 0 .4rem; }
+  .bbp-dialog pre { white-space: pre-wrap; font-family: inherit; font-weight: 600; background: #e6f8fe; border-radius: 14px; padding: .8rem 1rem; margin: .8rem 0; font-size: .92rem; }
+  .bbp-dialog p { margin: 0 0 1rem; color: #4f5a8c; font-size: .9rem; }
+  .bbp-dialog .bbp-row { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .bbp-dialog .bbp-row > * { flex: 1; }
+</style>
+
+<div class="bbp" id="bbp-root">
+  <div class="bbp-intro">
+    <div class="bbp-eyebrow">Plan my site</div>
+    <h2>Will it fit in your yard?</h2>
+    <p>Find your address, drop a to-scale rental in your yard and check that our 100 ft cords reach your outlet.</p>
+  </div>
+
+  <div class="bbp-app">
+    <div class="bbp-panel">
+      <div class="bbp-step">
+        <h3><span class="bbp-n">1</span>Find your yard</h3>
+        <form class="bbp-search" id="bbp-search">
+          <input id="bbp-addr" type="text" placeholder="Enter your party address" autocomplete="street-address">
+          <button class="bbp-btn bbp-orange" type="submit">Go</button>
+        </form>
+        <p class="bbp-hint" id="bbp-msg">We'll zoom to your yard on the satellite map.</p>
+      </div>
+      <div class="bbp-step">
+        <h3><span class="bbp-n">2</span>Add a rental</h3>
+        <div class="bbp-units" id="bbp-picker"></div>
+        <p class="bbp-hint">Drag the ✥ handle to move it. Use the slider to rotate. The dashed outline is the 5 ft safety clearance we need around each unit.</p>
+      </div>
+      <div class="bbp-step">
+        <h3><span class="bbp-n">3</span>Mark your outlet</h3>
+        <button class="bbp-btn bbp-white bbp-wide" id="bbp-outlet" type="button">🔌 Place outlet on map</button>
+        <p class="bbp-hint">Tap where your outdoor outlet is. We bring 100 ft of heavy-duty cord, and anything farther needs a generator.</p>
+      </div>
+      <div class="bbp-step">
+        <h3><span class="bbp-n">4</span>Your layout</h3>
+        <ul class="bbp-placed" id="bbp-placed"></ul>
+        <button class="bbp-btn bbp-orange bbp-wide" id="bbp-send" type="button">📋 Copy layout &amp; book</button>
+      </div>
+    </div>
+    <div class="bbp-mapwrap">
+      <div class="bbp-map" id="bbp-map"></div>
+      <div class="bbp-banner" id="bbp-banner">Search your address, then add a rental</div>
+      <div class="bbp-tools"><button class="bbp-btn bbp-white" id="bbp-measure" type="button">📏 Measure</button></div>
+      <div class="bbp-legend">
+        <div><span class="bbp-lg solid"></span>Rental footprint</div>
+        <div><span class="bbp-lg dash"></span>5 ft safety clearance</div>
+        <div><span class="bbp-lg cord"></span>100 ft cord reach</div>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="bbp-dialog" id="bbp-dialog">
+    <h3>Layout copied! 🎉</h3>
+    <pre id="bbp-summary"></pre>
+    <p>Paste this into the notes when you check out so our crew knows exactly where to set up.</p>
+    <div class="bbp-row">
+      <form method="dialog"><button class="bbp-btn bbp-white bbp-wide">Keep editing</button></form>
+      <a class="bbp-btn bbp-orange" href="/order-by-date/?show_instructions=1">Book my date →</a>
+    </div>
+  </dialog>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+  // Footprints in feet (from the FAQ). Edit names/sizes/colors here.
+  var BBP_UNITS = [
+    { name: 'Bounce House',    w: 13, l: 13, color: '#f7b51d', emoji: '🏰' },
+    { name: 'Bounce Combo',    w: 13, l: 31, color: '#fc9403', emoji: '🎪' },
+    { name: 'Water Slide',     w: 20, l: 45, color: '#3aa8dc', emoji: '🌊' },
+    { name: 'Obstacle Course', w: 10, l: 40, color: '#e0402f', emoji: '🏁' }
+  ];
+  var CLEARANCE_FT = 5, CORD_FT = 100, FT = 0.3048, M_PER_DEG = 111320;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var map = L.map('bbp-map', { scrollWheelZoom: true }).setView([39.1753, -84.2944], 17);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxNativeZoom: 19, maxZoom: 21, attribution: 'Imagery &copy; Esri'
+  }).addTo(map);
+
+  // Geometry in local feet around a center point
+  function cosLat(c) { return Math.cos(c.lat * Math.PI / 180); }
+  function toLatLng(c, x, y) { return L.latLng(c.lat + y * FT / M_PER_DEG, c.lng + x * FT / (M_PER_DEG * cosLat(c))); }
+  function toLocal(c, p) { return { x: (p.lng - c.lng) * M_PER_DEG * cosLat(c) / FT, y: (p.lat - c.lat) * M_PER_DEG / FT }; }
+  function rect(c, w, l, deg, pad) {
+    pad = pad || 0;
+    var r = deg * Math.PI / 180, hw = w / 2 + pad, hl = l / 2 + pad;
+    return [[-hw, -hl], [hw, -hl], [hw, hl], [-hw, hl]].map(function (p) {
+      return toLatLng(c, p[0] * Math.cos(r) + p[1] * Math.sin(r), -p[0] * Math.sin(r) + p[1] * Math.cos(r));
+    });
+  }
+  function distToRect(item, p) {
+    var q = toLocal(item.center, p), r = item.rot * Math.PI / 180;
+    var lx = q.x * Math.cos(r) - q.y * Math.sin(r), ly = q.x * Math.sin(r) + q.y * Math.cos(r);
+    return Math.hypot(Math.max(Math.abs(lx) - item.unit.w / 2, 0), Math.max(Math.abs(ly) - item.unit.l / 2, 0));
+  }
+
+  var items = [], selected = null, uid = 0, outlet = null, cordCircle = null, addressLabel = '', mode = null, ruler = [];
+  var banner = $('bbp-banner'), list = $('bbp-placed');
+  function showBanner(t) { banner.textContent = t; banner.hidden = !t; }
+
+  $('bbp-picker').innerHTML = ''; // the ERS editor puts a space in empty divs, which shows up as a blank grid slot
+  BBP_UNITS.forEach(function (u) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'bbp-unit'; b.style.setProperty('--c', u.color);
+    b.innerHTML = '<span class="bbp-emo">' + u.emoji + '</span><b>' + u.name + '</b><small>' + u.w + ' × ' + u.l + ' ft</small>';
+    b.onclick = function () { addUnit(u); };
+    $('bbp-picker').appendChild(b);
+  });
+
+  function addUnit(unit) {
+    if (map.getZoom() < 19) map.setView(map.getCenter(), 19);
+    var off = (items.length % 4) * 12;
+    var item = { id: ++uid, unit: unit, rot: 0, center: toLatLng(map.getCenter(), off, -off) };
+    item.buf = L.polygon([], { color: '#fff', weight: 2, dashArray: '6 6', fillColor: '#fff', fillOpacity: .12, interactive: false }).addTo(map);
+    item.foot = L.polygon([], { color: '#1c2366', weight: 3, fillColor: unit.color, fillOpacity: .75 }).addTo(map);
+    item.handle = L.marker(item.center, {
+      draggable: true, autoPan: true,
+      icon: L.divIcon({ className: 'bbp-handle', html: '<span>✥</span>', iconSize: [30, 30] })
+    }).addTo(map).bindTooltip(unit.name + ' · ' + unit.w + '×' + unit.l + ' ft', { permanent: true, direction: 'top', offset: [0, -16], className: 'bbp-tag' });
+    item.handle.on('drag', function (e) { item.center = e.target.getLatLng(); draw(item); updateStatus(); });
+    item.handle.on('mousedown touchstart', function () { select(item); });
+    item.foot.on('click', function () { select(item); });
+    items.push(item);
+    draw(item); select(item); renderList();
+    showBanner(outlet ? '' : 'Now mark your outlet so we can check cord reach');
+  }
+
+  function draw(item) {
+    item.foot.setLatLngs(rect(item.center, item.unit.w, item.unit.l, item.rot));
+    item.buf.setLatLngs(rect(item.center, item.unit.w, item.unit.l, item.rot, CLEARANCE_FT));
+    item.handle.setLatLng(item.center);
+  }
+
+  function select(item) {
+    selected = item;
+    items.forEach(function (i) { i.foot.setStyle({ weight: i === item ? 4 : 2 }); });
+    list.querySelectorAll('.bbp-item').forEach(function (el) { el.classList.toggle('bbp-sel', +el.dataset.id === item.id); });
+  }
+
+  function removeUnit(item) {
+    [item.foot, item.buf, item.handle].forEach(function (l) { map.removeLayer(l); });
+    items = items.filter(function (i) { return i !== item; });
+    renderList();
+  }
+
+  function renderList() {
+    list.innerHTML = '';
+    if (!items.length) { list.innerHTML = '<li class="bbp-empty">No rentals placed yet. Add one above!</li>'; return; }
+    items.forEach(function (item) {
+      var li = document.createElement('li');
+      li.className = 'bbp-item' + (item === selected ? ' bbp-sel' : '');
+      li.dataset.id = item.id; li.style.setProperty('--c', item.unit.color);
+      li.innerHTML =
+        '<div class="bbp-item-top"><span class="bbp-swatch"></span><b>' + item.unit.name + '</b><small>' + item.unit.w + '×' + item.unit.l + ' ft</small>' +
+        '<button class="bbp-x" type="button" title="Remove">✕</button></div>' +
+        '<label class="bbp-rot">↻ Rotate <input type="range" min="0" max="180" step="5" value="' + item.rot + '"><output>' + item.rot + '°</output></label>' +
+        '<div class="bbp-status"></div>';
+      li.querySelector('.bbp-x').onclick = function (e) { e.stopPropagation(); removeUnit(item); };
+      var range = li.querySelector('input'), out = li.querySelector('output');
+      range.oninput = function () { item.rot = +range.value; out.textContent = item.rot + '°'; draw(item); updateStatus(); };
+      li.onclick = function () { select(item); map.panTo(item.center); };
+      list.appendChild(li);
+    });
+    updateStatus();
+  }
+
+  function powerText(item) {
+    if (!outlet) return null;
+    var d = Math.round(distToRect(item, outlet.getLatLng()));
+    return { ok: d <= CORD_FT, d: d };
+  }
+  function updateStatus() {
+    items.forEach(function (item) {
+      var el = list.querySelector('.bbp-item[data-id="' + item.id + '"] .bbp-status');
+      if (!el) return;
+      var p = powerText(item);
+      if (!p) { el.className = 'bbp-status wait'; el.textContent = '🔌 Place your outlet to check power'; }
+      else if (p.ok) { el.className = 'bbp-status ok'; el.textContent = '✓ Power reaches (' + p.d + ' ft from outlet)'; }
+      else { el.className = 'bbp-status bad'; el.textContent = '✗ ' + p.d + ' ft from outlet. Needs a generator.'; }
+    });
+  }
+
+  // Modes: outlet placement and measuring
+  var outletBtn = $('bbp-outlet'), measureBtn = $('bbp-measure');
+  function setMode(m) {
+    mode = mode === m ? null : m;
+    map.getContainer().classList.toggle('bbp-placing', !!mode);
+    outletBtn.classList.toggle('bbp-on', mode === 'outlet');
+    measureBtn.classList.toggle('bbp-on', mode === 'measure');
+    clearRuler();
+    showBanner(mode === 'outlet' ? 'Tap the map where your outlet is' : mode === 'measure' ? 'Tap two points to measure' : '');
+  }
+  outletBtn.onclick = function () { setMode('outlet'); };
+  measureBtn.onclick = function () { setMode('measure'); };
+
+  function placeOutlet(latlng) {
+    if (!outlet) {
+      outlet = L.marker(latlng, { draggable: true, icon: L.divIcon({ className: 'bbp-outlet', html: '<span>🔌</span>', iconSize: [34, 34] }) })
+        .addTo(map).bindTooltip('Outlet', { direction: 'top', offset: [0, -18], className: 'bbp-tag' });
+      cordCircle = L.circle(latlng, { radius: CORD_FT * FT, color: '#00c2f5', weight: 2, dashArray: '8 6', fillOpacity: .06, interactive: false }).addTo(map);
+      outlet.on('drag', function (e) { cordCircle.setLatLng(e.target.getLatLng()); updateStatus(); });
+      outletBtn.textContent = '🔌 Move outlet';
+    } else { outlet.setLatLng(latlng); cordCircle.setLatLng(latlng); }
+    updateStatus();
+  }
+
+  function clearRuler() { ruler.forEach(function (l) { map.removeLayer(l); }); ruler = []; }
+  function measureClick(latlng) {
+    var dots = ruler.filter(function (l) { return l instanceof L.Marker; });
+    if (dots.length >= 2) { clearRuler(); dots = []; }
+    var dot = L.marker(latlng, { icon: L.divIcon({ className: 'bbp-dot', html: '<span></span>', iconSize: [12, 12] }), interactive: false }).addTo(map);
+    ruler.push(dot); dots.push(dot);
+    if (dots.length === 2) {
+      var a = dots[0].getLatLng(), b = dots[1].getLatLng();
+      var ft = Math.round(map.distance(a, b) / FT);
+      var line = L.polyline([a, b], { color: '#f7b51d', weight: 4, dashArray: '2 8', lineCap: 'round', interactive: false }).addTo(map);
+      line.bindTooltip(ft + ' ft', { permanent: true, direction: 'top', className: 'bbp-tag bbp-ruler' }).openTooltip(L.latLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2));
+      ruler.push(line);
+      showBanner('Tap again to start a new measurement');
+    }
+  }
+
+  map.on('click', function (e) {
+    if (mode === 'outlet') { placeOutlet(e.latlng); setMode('outlet'); }
+    else if (mode === 'measure') measureClick(e.latlng);
+  });
+
+  // Address search: Photon first (good with house numbers), Nominatim fallback
+  function geocode(q) {
+    return fetch('https://photon.komoot.io/api/?limit=1&lat=39.17&lon=-84.29&q=' + encodeURIComponent(q))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var f = j.features && j.features[0];
+        if (!f) throw 0;
+        var p = f.properties, street = [p.housenumber, p.street].filter(Boolean).join(' ') || p.name;
+        return { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0], label: [street, p.city, p.state].filter(Boolean).join(', ') };
+      })
+      .catch(function () {
+        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q))
+          .then(function (r) { return r.json(); })
+          .then(function (a) { return a[0] ? { lat: +a[0].lat, lng: +a[0].lon, label: a[0].display_name.split(',').slice(0, 3).join(',') } : null; });
+      });
+  }
+  var msg = $('bbp-msg');
+  $('bbp-search').onsubmit = function (e) {
+    e.preventDefault();
+    var q = $('bbp-addr').value.trim();
+    if (!q) return;
+    msg.className = 'bbp-hint'; msg.textContent = 'Searching…';
+    geocode(q).then(function (hit) {
+      if (!hit) throw 0;
+      map.setView([hit.lat, hit.lng], 20);
+      addressLabel = hit.label;
+      msg.textContent = '📍 ' + addressLabel;
+      showBanner(items.length ? '' : 'Pick a rental to drop it in your yard');
+    }).catch(function () {
+      msg.className = 'bbp-hint bbp-err';
+      msg.textContent = "Couldn't find that address. Try adding the city and state.";
+    });
+  };
+
+  // Copy a text summary for the order notes, then offer the ERS booking page
+  $('bbp-send').onclick = function () {
+    var lines = ['Yard layout (Plan My Site)', 'Address: ' + (addressLabel || 'not searched')];
+    if (!items.length) lines.push('No rentals placed');
+    items.forEach(function (i) {
+      var p = powerText(i);
+      var power = !p ? 'outlet not marked' : p.ok ? 'outlet ' + p.d + ' ft away' : 'outlet ' + p.d + ' ft away, needs generator';
+      lines.push('- ' + i.unit.name + ' (' + i.unit.w + 'x' + i.unit.l + ' ft), rotated ' + i.rot + '°, ' + power);
+    });
+    var text = lines.join('\n');
+    $('bbp-summary').textContent = text;
+    var done = function () { $('bbp-dialog').showModal(); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, done);
+    else {
+      var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove(); done();
+    }
+  };
+
+  renderList();
+  // Leaflet needs a size recalc if the ERS layout settles after load
+  window.addEventListener('load', function () { map.invalidateSize(); });
+})();
+</script>

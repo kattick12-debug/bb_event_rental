@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bounce Buddies Milford</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Pulled from the Bounce Buddies logo badge */
+    --sky: #5cc6ee;
+    --blue: #1288c4;
+    --orange: #f08a12;
+    --sun: #f7b51d;
+    --gold-lt: #ffe08a;
+    --red: #e0402f;
+    --ink: #0f1e2b;
+    --muted: #536273;
+    --cream: #e6f3fa;
+    --butter: #fff4cc;
+    --card: #ffffff;
+    --radius: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: "Nunito", system-ui, sans-serif; color: var(--ink); background: var(--cream); line-height: 1.55; overflow-x: hidden; }
+  h1, h2, h3, .logo, .btn { font-family: "Fredoka", "Nunito", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: .5rem; font-weight: 600; font-size: 1.05rem; padding: .85rem 1.6rem; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); transition: transform .15s, box-shadow .15s; cursor: pointer; white-space: nowrap; }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-sun { background: var(--sun); color: var(--ink); }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-white { background: #fff; color: var(--ink); }
+
+  /* Top bar + nav */
+  .topbar { background: var(--ink); color: #fff; font-size: .9rem; font-weight: 600; }
+  .topbar .wrap { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0; flex-wrap: wrap; }
+  .topbar span { opacity: .85; }
+  nav.main { position: sticky; top: 0; z-index: 20; background: rgba(230,243,250,.94); backdrop-filter: blur(10px); border-bottom: 3px solid var(--ink); }
+  nav.main .wrap { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; gap: 1rem; }
+  .logo { display: flex; align-items: center; }
+  .logo-img { height: 62px; width: auto; filter: drop-shadow(2px 3px 0 rgba(15,30,43,.18)); transition: transform .2s; }
+  .logo:hover .logo-img { transform: rotate(-3deg) scale(1.05); }
+  .footer-logo { height: 140px; }
+  nav.main .wrap { padding: .45rem 0 !important; }
+  .links { display: flex; gap: 1.6rem; font-weight: 800; }
+  .links a { position: relative; }
+  .links a::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 3px; width: 0; background: var(--orange); border-radius: 3px; transition: width .2s; }
+  .links a:hover::after { width: 100%; }
+  @media (max-width: 860px) { .links { display: none; } nav.main .btn { padding: .6rem 1.1rem; font-size: .95rem; } }
+
+  /* Hero */
+  .hero { position: relative; background: linear-gradient(160deg, #1d9ad6, #0b4f7d); color: #fff; padding: 5rem 0 7rem; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; position: relative; z-index: 2; }
+  .tag { display: inline-block; background: var(--sun); color: var(--ink); font-weight: 800; padding: .35rem .9rem; border-radius: 999px; border: 2px solid var(--ink); transform: rotate(-2deg); margin-bottom: 1.1rem; font-size: .9rem; }
+  .hero h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -.01em; margin-bottom: 1.2rem; }
+  .hero h1 .pop { color: var(--sun); display: inline-block; animation: bounce 2.2s ease-in-out infinite; }
+  .hero p.lead { font-size: 1.2rem; max-width: 520px; margin-bottom: 2rem; opacity: .95; }
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .trust { display: flex; gap: 1.4rem; margin-top: 2rem; flex-wrap: wrap; font-weight: 800; font-size: .95rem; }
+  .trust div { display: flex; align-items: center; gap: .45rem; }
+  .trust div::before { content: "✓"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gold-lt); color: var(--ink); font-size: .8rem; }
+  .hero-art { position: relative; aspect-ratio: 1; }
+  .hero-photo { position: absolute; inset: 8% 6% 6% 8%; border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%; overflow: hidden; border: 5px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); background: radial-gradient(circle at 50% 40%, #fff 0%, #fff3c4 75%); animation: wobble 8s ease-in-out infinite; display: grid; place-items: center; padding: 7%; }
+  .hero-photo img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; filter: saturate(1.12) contrast(1.05); }
+  .sticker { position: absolute; background: var(--red); color: #fff; font-family: "Fredoka"; font-weight: 700; border: 3px solid var(--ink); border-radius: 50%; width: 120px; height: 120px; display: grid; place-items: center; text-align: center; line-height: 1.05; font-size: 1rem; right: 0; top: 0; transform: rotate(12deg); box-shadow: 4px 4px 0 var(--ink); z-index: 3; }
+  .sticker b { font-size: 1.9rem; display: block; }
+  .blob { position: absolute; border-radius: 50%; opacity: .9; }
+  .b1 { width: 160px; height: 160px; background: var(--sun); left: -50px; top: 40px; }
+  .b2 { width: 90px; height: 90px; background: var(--orange); right: 8%; bottom: 120px; animation: float 5s ease-in-out infinite; }
+  .b3 { width: 50px; height: 50px; background: var(--gold-lt); left: 45%; top: 30px; animation: float 4s ease-in-out infinite reverse; }
+  .wave { position: absolute; left: 0; right: 0; bottom: -1px; z-index: 3; }
+  .wave svg { display: block; width: 100%; height: 80px; }
+  @media (max-width: 860px) {
+    .hero { padding: 3rem 0 6rem; }
+    .hero .wrap { grid-template-columns: 1fr; }
+    .hero-art { max-width: 380px; width: 100%; margin-inline: auto; }
+    .sticker { width: 96px; height: 96px; font-size: .85rem; }
+    .sticker b { font-size: 1.5rem; }
+  }
+
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+  @keyframes wobble { 0%,100% { border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%; } 50% { border-radius: 55% 45% 40% 60% / 45% 55% 45% 55%; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  /* Sections */
+  section { padding: 5rem 0; }
+  .eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .85rem; margin-bottom: .5rem; }
+  h2 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; margin-bottom: 1rem; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
+  .section-head p { color: var(--muted); font-size: 1.1rem; }
+
+  /* Perks */
+  .perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .perk { background: var(--card); border: 3px solid var(--ink); border-radius: var(--radius); padding: 2rem; box-shadow: 6px 6px 0 var(--ink); transition: transform .2s; }
+  .perk:nth-child(1) { transform: rotate(-1.2deg); }
+  .perk:nth-child(3) { transform: rotate(1.2deg); }
+  .perk:hover { transform: rotate(0) translateY(-6px); }
+  .perk-icon { width: 64px; height: 64px; border-radius: 18px; border: 3px solid var(--ink); display: grid; place-items: center; font-size: 2rem; margin-bottom: 1rem; }
+  .perk h3 { font-size: 1.5rem; margin-bottom: .35rem; }
+  .perk p { color: var(--muted); }
+  @media (max-width: 860px) { .perks { grid-template-columns: 1fr; } .perk:nth-child(n) { transform: none; } }
+
+  /* Categories */
+  .cats-bg { background: var(--butter); border-block: 3px solid var(--ink); }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+  .cat { position: relative; background: #fff; border: 3px solid var(--ink); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; box-shadow: 0 0 0 var(--ink); }
+  .cat:hover { transform: translateY(-6px) rotate(-.6deg); box-shadow: 8px 8px 0 var(--ink); }
+  /* "Studio" product shot: pastel backdrop, white photo bg blended away, floor shadow */
+  .cat-img { --bd: #dff4ff; position: relative; aspect-ratio: 4/3; overflow: hidden; border-bottom: 3px solid var(--ink); background: radial-gradient(ellipse at 50% 35%, #fff 0%, var(--bd) 70%); padding: 1.1rem 1.4rem 1.6rem; display: grid; place-items: center; }
+  .cat-img::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: 10px; height: 16px; border-radius: 50%; background: radial-gradient(ellipse, rgba(27,31,59,.28), transparent 70%); transition: transform .4s, opacity .4s; }
+  .cat-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; filter: saturate(1.12) contrast(1.05); transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .cat:hover .cat-img img { transform: translateY(-8px) scale(1.04); }
+  .cat:hover .cat-img::after { transform: scale(.85); opacity: .7; }
+  .cat:nth-child(6n+2) .cat-img { --bd: #fff0c2; }
+  .cat:nth-child(6n+3) .cat-img { --bd: #ffe4cc; }
+  .cat:nth-child(6n+4) .cat-img { --bd: #d9eef9; }
+  .cat:nth-child(6n+5) .cat-img { --bd: #fff6dc; }
+  .cat:nth-child(6n) .cat-img { --bd: #fde3d6; }
+  .cat-body { padding: 1.1rem 1.25rem 1.3rem; display: flex; justify-content: space-between; align-items: end; gap: .5rem; }
+  .cat h3 { font-size: 1.3rem; line-height: 1.15; }
+  .cat .from { font-size: .8rem; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+  .price { background: var(--sun); border: 2px solid var(--ink); border-radius: 12px; padding: .2rem .6rem; font-family: "Fredoka"; font-weight: 700; font-size: 1.2rem; white-space: nowrap; }
+  .cat:nth-child(3n+2) .price { background: var(--gold-lt); }
+  .cat:nth-child(3n) .price { background: var(--sky); }
+
+  /* Safety */
+  .safety { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .checklist { list-style: none; display: grid; gap: 1rem; }
+  .checklist li { display: flex; gap: 1rem; align-items: flex-start; background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 1rem 1.2rem; }
+  .checklist .num { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--orange); color: #fff; font-family: "Fredoka"; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--ink); }
+  .checklist li:nth-child(2) .num { background: var(--blue); }
+  .checklist li:nth-child(3) .num { background: var(--gold-lt); color: var(--ink); }
+  .checklist li:nth-child(4) .num { background: var(--sun); color: var(--ink); }
+  .checklist b { display: block; font-family: "Fredoka"; font-size: 1.15rem; font-weight: 600; }
+  .checklist span { color: var(--muted); font-size: .95rem; }
+  .big-stat { font-family: "Fredoka"; font-weight: 700; font-size: clamp(3.5rem, 9vw, 6rem); line-height: 1; color: var(--blue); }
+  @media (max-width: 860px) { .safety { grid-template-columns: 1fr; } }
+
+  /* How it works */
+  .steps-bg { background: var(--ink); color: #fff; border-block: 3px solid var(--ink); }
+  .steps-bg .eyebrow { color: var(--sun); }
+  .steps-bg .section-head p { color: rgba(255,255,255,.9); }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; counter-reset: s; }
+  .step { background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: var(--radius); padding: 2rem 1.6rem 1.6rem; position: relative; box-shadow: 6px 6px 0 var(--ink); }
+  .step::before { counter-increment: s; content: counter(s); position: absolute; top: -22px; left: 1.4rem; width: 48px; height: 48px; border-radius: 50%; background: var(--sun); border: 3px solid var(--ink); display: grid; place-items: center; font-family: "Fredoka"; font-weight: 700; font-size: 1.4rem; }
+  .step h3 { font-size: 1.35rem; margin: .5rem 0 .3rem; }
+  .step p { color: var(--muted); }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr; gap: 2.2rem; } }
+
+  /* FAQ */
+  .faq { max-width: 780px; margin-inline: auto; display: grid; gap: .9rem; }
+  details { background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 1.1rem 1.3rem; }
+  details[open] { box-shadow: 5px 5px 0 var(--sky); }
+  summary { cursor: pointer; font-family: "Fredoka"; font-weight: 600; font-size: 1.15rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--orange); transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { color: var(--muted); margin-top: .6rem; }
+
+  /* Areas */
+  .areas { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+  .areas a { background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: .4rem 1rem; font-weight: 700; font-size: .95rem; transition: background .15s, transform .15s; }
+  .areas a:hover { background: var(--sun); transform: translateY(-2px); }
+  .areas a.here { background: var(--orange); color: #fff; }
+
+  /* CTA band */
+  .cta { background: var(--sun); border: 3px solid var(--ink); border-radius: 36px; padding: 3.5rem 2rem; text-align: center; position: relative; overflow: hidden; box-shadow: 10px 10px 0 var(--ink); }
+  .cta h2 { font-size: clamp(2rem, 5vw, 3.4rem); }
+  .cta p { font-size: 1.15rem; margin-bottom: 1.8rem; }
+  .cta .hero-ctas { justify-content: center; }
+  .confetti { position: absolute; width: 14px; height: 14px; border-radius: 3px; }
+
+  /* Footer */
+  footer { background: var(--ink); color: #fff; padding: 4rem 0 2rem; margin-top: 5rem; }
+  .foot { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; }
+  footer h4 { font-family: "Fredoka"; font-size: 1.1rem; margin-bottom: .8rem; color: var(--sun); }
+  footer li { list-style: none; margin-bottom: .4rem; opacity: .85; }
+  footer a:hover { opacity: 1; text-decoration: underline; }
+  .foot .logo small { color: var(--sky); }
+  .copy { border-top: 1px solid rgba(255,255,255,.15); margin-top: 2.5rem; padding-top: 1.5rem; font-size: .85rem; opacity: .6; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  @media (max-width: 760px) { .foot { grid-template-columns: 1fr; } }
+
+  /* Mobile sticky call bar */
+  .mobile-bar { display: none; }
+  @media (max-width: 640px) {
+    .mobile-bar { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30; }
+    .mobile-bar .btn { justify-content: center; padding: .75rem; }
+    footer { padding-bottom: 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span>🎈 Free delivery to Milford &amp; within 20 miles</span>
+    <a href="tel:5133051758">📞 (513) 305-1758</a>
+  </div>
+</div>
+
+<nav class="main">
+  <div class="wrap">
+    <a href="#" class="logo"><img class="logo-img" src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/editor/logo-copy.png" alt="Bounce Buddies Event Rental"></a>
+    <div class="links">
+      <a href="#rentals">Rentals</a>
+      <a href="#safety">Safety</a>
+      <a href="#how">How It Works</a>
+      <a href="yard-checker.html">Will It Fit?</a>
+      <a href="#faq">FAQs</a>
+      <a href="#areas">Service Areas</a>
+    </div>
+    <a href="#book" class="btn btn-orange">Book Now</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <div class="wrap">
+    <div>
+      <span class="tag">⭐ Milford, OH's bounce crew</span>
+      <h1>Milford's best bounce, <span class="pop">every time!</span></h1>
+      <p class="lead">Bounce houses, water slides, combos and obstacle courses, delivered, set up and sanitized so you can enjoy the party.</p>
+      <div class="hero-ctas">
+        <a href="#book" class="btn btn-sun">📅 Check My Date</a>
+        <a href="#rentals" class="btn btn-white">Browse Rentals →</a>
+      </div>
+      <div class="trust">
+        <div>$1M insured</div>
+        <div>State-inspected</div>
+        <div>Cleaned every rental</div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="sticker"><div><b>8 hr</b>rentals</div></div>
+      <div class="hero-photo">
+        <img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20260315_153854_Chrome.jpg" alt="Bounce house combo set up in a backyard">
+      </div>
+    </div>
+  </div>
+  <div class="wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,40 L1440,80 L0,80 Z" fill="#e6f3fa"/></svg>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="perks">
+      <div class="perk">
+        <div class="perk-icon" style="background:var(--sun)">🚚</div>
+        <h3>Free Delivery</h3>
+        <p>To Milford and anywhere within 20 miles of our warehouse. Setup and takedown included.</p>
+      </div>
+      <div class="perk">
+        <div class="perk-icon" style="background:var(--sky)">⏰</div>
+        <h3>Up to 8 Hours</h3>
+        <p>Full-day rentals built for maximum playtime. We set up before the clock starts.</p>
+      </div>
+      <div class="perk">
+        <div class="perk-icon" style="background:var(--gold-lt)">🏆</div>
+        <h3>Top-Tier Service</h3>
+        <p>Local prices and a crew that shows up on time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rentals" class="cats-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Pick your party</div>
+      <h2>Rentals for every kind of fun</h2>
+      <p>From backyard birthdays to school field days, find the right setup.</p>
+    </div>
+    <div class="cats">
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20260222_183842_Gallery.jpg" alt="Bounce house"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Bounce Houses</h3></div><span class="price">$225</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20261010_214629_Gallery.jpg" alt="Water slide"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Water &amp; Dry Slides</h3></div><span class="price">$300</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20260315_153854_Chrome.jpg" alt="Bounce house combo"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Bounce Combos</h3></div><span class="price">$325</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20261010_223833_ChatGPT.jpg" alt="Obstacle course"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Obstacle Courses</h3></div><span class="price">$350</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Untitled-design.png" alt="Package deals"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Package Deals</h3></div><span class="price">$200</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20260306_085208_Photo-Editor.jpg" alt="Interactive games"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Interactive Games</h3></div><span class="price">$40</span></div>
+      </a>
+      <a class="cat" href="#">
+        <div class="cat-img"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/categories/Screenshot_20260303_115854_Chrome.jpg" alt="Concessions"></div>
+        <div class="cat-body"><div><div class="from">Starting at</div><h3>Concessions &amp; Add-Ons</h3></div><span class="price">$50</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap safety">
+    <div>
+      <div class="eyebrow">Peace of mind</div>
+      <h2>Safety comes first, then the fun</h2>
+      <p style="color:var(--muted);font-size:1.1rem;margin-bottom:1.5rem">Your family's safety is our top priority. Every rental gets the same careful routine before anyone jumps in.</p>
+      <div class="big-stat">$1M</div>
+      <p style="font-weight:800">liability insurance on every event</p>
+    </div>
+    <ul class="checklist">
+      <li><span class="num">1</span><div><b>State-inspected annually</b><span>Every inflatable meets Ohio safety standards.</span></div></li>
+      <li><span class="num">2</span><div><b>Cleaned &amp; sanitized</b><span>Disinfected after every single rental.</span></div></li>
+      <li><span class="num">3</span><div><b>Inspected before arrival</b><span>We check seams, anchors and blowers before we leave the warehouse.</span></div></li>
+      <li><span class="num">4</span><div><b>Walk-around with you</b><span>We go through a full safety checklist with you before we leave.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="how" class="steps-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Easy as 1-2-3</div>
+      <h2>How booking works</h2>
+      <p>Three steps to party day.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Pick your date</h3><p>See what's available and add your favorites. A $50 refundable deposit holds your spot.</p></div>
+      <div class="step"><h3>We deliver &amp; set up</h3><p>We arrive 1–3 hours early, set up on grass, dirt or pavement, and bring heavy-duty cords.</p></div>
+      <div class="step"><h3>Bounce all day</h3><p>Enjoy up to 8 hours of fun. We come back for takedown and cleanup.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Good questions</div>
+      <h2>Frequently asked</h2>
+    </div>
+    <div class="faq">
+      <details open><summary>Does the price include delivery and setup?</summary><p>Yes, within 20 miles. Extra fees may apply farther out, up to 40 miles. Prices don't include sales tax.</p></details>
+      <details><summary>How much space do I need?</summary><p>Most bouncers are 13' × 13' and most combos are 31' × 13'. Some water slides are up to 20' × 45'. Add about 5' on every side. <a href="yard-checker.html" style="color:var(--orange);font-weight:800">Try our yard checker →</a></p></details>
+      <details><summary>Do I need power?</summary><p>Yes, an outlet within 100 feet. Most parks don't have electricity, so you can rent a generator from us.</p></details>
+      <details><summary>What's your deposit and cancellation policy?</summary><p>A $50 card deposit holds your date. It's fully refundable if you cancel 8 or more days out. Cancel 2–7 days out and you get a rain check good for a year.</p></details>
+      <details><summary>How do I pay?</summary><p>Cash or credit card. If you pay cash, have exact change ready because drivers don't carry change.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="areas" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Where we bounce</div>
+      <h2>Serving Milford &amp; the Tri-State</h2>
+    </div>
+    <div class="areas">
+      <a class="here" href="#">Milford</a><a href="#">Amelia</a><a href="#">Anderson</a><a href="#">Batavia</a><a href="#">Bethel</a><a href="#">Blue Ash</a><a href="#">Cincinnati</a><a href="#">Covington KY</a><a href="#">Delhi</a><a href="#">Eastgate</a><a href="#">Evendale</a><a href="#">Fairfield</a><a href="#">Florence KY</a><a href="#">Fort Thomas KY</a><a href="#">Glendale</a><a href="#">Independence KY</a><a href="#">Indian Hill</a><a href="#">Loveland</a><a href="#">Madeira</a><a href="#">Mariemont</a><a href="#">Mason</a><a href="#">Montgomery</a><a href="#">Newport KY</a><a href="#">Newtown</a><a href="#">Norwood</a><a href="#">Reading</a><a href="#">Sharonville</a><a href="#">Sycamore Twp</a><a href="#">West Chester</a><a href="#">Woodlawn</a><a href="#">Northern Kentucky</a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap" id="book">
+  <div class="cta">
+    <span class="confetti" style="background:var(--orange);top:20px;left:8%;transform:rotate(20deg)"></span>
+    <span class="confetti" style="background:var(--blue);top:60px;right:10%;transform:rotate(-15deg)"></span>
+    <span class="confetti" style="background:var(--gold-lt);bottom:30px;left:14%;transform:rotate(40deg)"></span>
+    <span class="confetti" style="background:#fff;bottom:50px;right:18%;transform:rotate(10deg)"></span>
+    <h2>Ready to make it a party?</h2>
+    <p>Weekends book up fast. Check your date now.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-blue">📅 Book Your Event</a>
+      <a href="tel:5133051758" class="btn btn-white">📞 (513) 305-1758</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#" class="logo"><img class="logo-img footer-logo" src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/editor/logo-copy.png" alt="Bounce Buddies Event Rental"></a>
+        <p style="opacity:.8;max-width:320px;margin-top:1rem">Safe, clean and fun inflatable rentals for Milford, Cincinnati and the Tri-State.</p>
+      </div>
+      <div>
+        <h4>Visit / Call</h4>
+        <ul><li>8134 Clough Pike</li><li>Cincinnati, OH 45244</li><li><a href="tel:5133051758">(513) 305-1758</a></li><li><a href="https://www.facebook.com/share/1DWVacuUzA/">Facebook</a></li></ul>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul><li><a href="#rentals">All Rentals</a></li><li><a href="#faq">FAQs</a></li><li><a href="#">Terms &amp; Conditions</a></li><li><a href="#">Privacy Policy</a></li></ul>
+      </div>
+    </div>
+    <div class="copy"><span>© Bounce Buddies Event Rental. All rights reserved.</span><span>Redesign mockup</span></div>
+  </div>
+</footer>
+
+<div class="mobile-bar">
+  <a href="tel:5133051758" class="btn btn-white">📞 Call</a>
+  <a href="#book" class="btn btn-orange">Book Now</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Will It Fit?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    /* Pulled from the Bounce Buddies logo badge */
+    --sky: #5cc6ee; --blue: #1288c4; --orange: #f08a12; --sun: #f7b51d; --gold-lt: #ffe08a;
+    --ink: #0f1e2b; --muted: #536273; --bg: #e6f3fa; --red: #e5383b; --green: #2fa84f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Nunito", system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  h1, h2, .btn, .logo { font-family: "Fredoka", "Nunito", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; font-weight: 600; font-size: 1rem; padding: .65rem 1.2rem; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; transition: transform .12s, box-shadow .12s; white-space: nowrap; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-white { background: #fff; color: var(--ink); }
+  .btn-sun { background: var(--sun); color: var(--ink); }
+  .btn.on { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--orange); }
+  .wide { width: 100%; }
+
+  /* Header */
+  .bar { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 16px; background: #fff; border-bottom: 3px solid var(--ink); }
+  .logo { display: flex; align-items: center; }
+  .logo img { height: 54px; width: auto; filter: drop-shadow(2px 3px 0 rgba(15,30,43,.18)); }
+  .bar h1 { font-size: 1.25rem; display: flex; align-items: center; gap: .5rem; }
+  .bar h1 .pill { background: var(--sun); border: 2px solid var(--ink); border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; }
+  .back { font-weight: 800; font-size: .95rem; }
+  @media (max-width: 640px) { .bar h1 { display: none; } }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 370px 1fr; height: calc(100vh - 64px); }
+  .panel { overflow-y: auto; padding: 1.2rem 1.1rem 2rem; border-right: 3px solid var(--ink); background: var(--bg); }
+  .map-wrap { position: relative; }
+  #map { position: absolute; inset: 0; background: #2a2f4f; }
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    .map-wrap { height: 62vh; order: -1; border-bottom: 3px solid var(--ink); }
+    .panel { border-right: none; }
+  }
+
+  /* Steps */
+  .step { background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 1rem 1rem 1.1rem; margin-bottom: 1rem; }
+  .step h2 { font-size: 1.15rem; display: flex; align-items: center; gap: .55rem; margin-bottom: .75rem; }
+  .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: #fff; border: 2px solid var(--ink); font-size: 1rem; flex-shrink: 0; }
+  .step:nth-child(2) .n { background: var(--blue); }
+  .step:nth-child(3) .n { background: var(--sun); color: var(--ink); }
+  .step:nth-child(4) .n { background: var(--gold-lt); color: var(--ink); }
+  .hint { color: var(--muted); font-size: .88rem; margin-top: .55rem; }
+  .hint.err { color: var(--red); font-weight: 700; }
+
+  form.search { display: flex; gap: .5rem; }
+  form.search input { flex: 1; min-width: 0; font: inherit; font-weight: 600; padding: .6rem .9rem; border: 3px solid var(--ink); border-radius: 999px; outline: none; }
+  form.search input:focus { box-shadow: 0 0 0 3px var(--sky); }
+
+  .units { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .unit-btn { font: inherit; text-align: left; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: .6rem .7rem; cursor: pointer; display: flex; flex-direction: column; gap: .15rem; transition: transform .12s, background .12s; }
+  .unit-btn:hover { transform: translateY(-2px); background: var(--c); }
+  .unit-btn .emo { font-size: 1.4rem; }
+  .unit-btn b { font-family: "Fredoka"; font-weight: 600; font-size: 1rem; }
+  .unit-btn small { color: var(--muted); font-weight: 700; }
+
+  #placed { list-style: none; display: grid; gap: .6rem; margin-bottom: .9rem; }
+  #placed .empty { color: var(--muted); font-size: .92rem; text-align: center; padding: .8rem; border: 2px dashed #b9d3e3; border-radius: 14px; }
+  .item { border: 2px solid var(--ink); border-radius: 14px; padding: .65rem .75rem; background: #fff; cursor: pointer; }
+  .item.sel { box-shadow: 0 0 0 3px var(--c); }
+  .item-top { display: flex; align-items: center; gap: .5rem; }
+  .swatch { width: 14px; height: 14px; border-radius: 4px; border: 2px solid var(--ink); background: var(--c); flex-shrink: 0; }
+  .item-top b { font-family: "Fredoka"; font-weight: 600; flex: 1; }
+  .item-top small { color: var(--muted); font-weight: 700; }
+  .x { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); padding: 0 .2rem; }
+  .x:hover { color: var(--red); }
+  .rot { display: flex; align-items: center; gap: .5rem; margin-top: .45rem; font-size: .85rem; font-weight: 700; color: var(--muted); }
+  .rot input { flex: 1; accent-color: var(--orange); }
+  .rot output { width: 36px; text-align: right; }
+  .status { margin-top: .45rem; font-size: .85rem; font-weight: 800; padding: .3rem .6rem; border-radius: 10px; }
+  .status.ok { background: #e2f7e7; color: var(--green); }
+  .status.bad { background: #ffe3e3; color: var(--red); }
+  .status.wait { background: #f1eff9; color: var(--muted); }
+
+  /* Map overlays */
+  .map-tools { position: absolute; top: 12px; right: 12px; z-index: 500; display: flex; gap: .5rem; }
+  .legend { position: absolute; left: 12px; bottom: 22px; z-index: 500; background: rgba(255,255,255,.95); border: 2px solid var(--ink); border-radius: 14px; padding: .55rem .75rem; font-size: .8rem; font-weight: 700; display: grid; gap: .3rem; }
+  .legend div { display: flex; align-items: center; gap: .45rem; }
+  .lg { width: 22px; height: 12px; border-radius: 3px; }
+  .lg.solid { background: var(--sun); border: 2px solid var(--ink); }
+  .lg.dash { border: 2px dashed #fff; background: rgba(255,255,255,.2); outline: 1px solid var(--ink); }
+  .lg.cord { border: 2px dashed var(--sky); border-radius: 50%; height: 16px; width: 16px; }
+  .banner { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; background: var(--ink); color: #fff; font-weight: 800; font-size: .9rem; padding: .5rem 1rem; border-radius: 999px; box-shadow: 3px 3px 0 var(--orange); white-space: nowrap; pointer-events: none; transition: opacity .2s; }
+  .banner[hidden] { display: none; }
+  @media (max-width: 640px) { .banner { top: auto; bottom: 12px; font-size: .8rem; } .legend { display: none; } }
+  .leaflet-container.placing, .leaflet-container.placing .leaflet-interactive { cursor: crosshair !important; }
+
+  /* Leaflet bits */
+  .handle span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 3px solid var(--ink); font-size: 15px; cursor: move; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  .outlet span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--sky); border: 3px solid var(--ink); font-size: 17px; cursor: move; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  .dot span { display: block; width: 12px; height: 12px; border-radius: 50%; background: var(--sun); border: 2px solid var(--ink); }
+  .leaflet-tooltip.tag { background: var(--ink); color: #fff; border: none; border-radius: 999px; font-family: "Fredoka"; font-weight: 600; font-size: .85rem; padding: .15rem .6rem; box-shadow: none; }
+  .leaflet-tooltip-top.tag::before { border-top-color: var(--ink); }
+  .leaflet-tooltip.tag.ruler { background: var(--sun); color: var(--ink); }
+  .leaflet-tooltip-top.tag.ruler::before { border-top-color: var(--sun); }
+
+  /* Dialog */
+  dialog { border: 3px solid var(--ink); border-radius: 24px; padding: 1.6rem; max-width: 420px; width: calc(100% - 32px); box-shadow: 8px 8px 0 var(--ink); margin: auto; }
+  dialog::backdrop { background: rgba(27,31,59,.55); }
+  dialog h2 { font-family: "Fredoka"; font-size: 1.6rem; margin-bottom: .4rem; }
+  dialog ul { margin: .8rem 0 1rem 1.1rem; display: grid; gap: .3rem; font-weight: 600; }
+  dialog .note { font-size: .82rem; color: var(--muted); margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a href="milford-redesign.html" class="logo"><img src="https://files.sysers.com/cp/upload/bouncebuddieseventrental/editor/logo-copy.png" alt="Bounce Buddies Event Rental"></a>
+  <h1>Will it fit? <span class="pill">Yard checker</span></h1>
+  <a href="milford-redesign.html" class="back">← Back to site</a>
+</header>
+
+<main class="app">
+  <aside class="panel">
+    <section class="step">
+      <h2><span class="n">1</span>Find your yard</h2>
+      <form class="search" id="search">
+        <input id="addr" type="text" placeholder="Enter your party address" autocomplete="street-address">
+        <button class="btn btn-orange" type="submit">Go</button>
+      </form>
+      <p class="hint" id="searchMsg">We'll zoom to your yard on the satellite map.</p>
+    </section>
+
+    <section class="step">
+      <h2><span class="n">2</span>Add a rental</h2>
+      <div class="units" id="picker"></div>
+      <p class="hint">Drag the ✥ handle to move it. Use the slider to rotate. The dashed outline is the 5 ft safety clearance we need around each unit.</p>
+    </section>
+
+    <section class="step">
+      <h2><span class="n">3</span>Mark your outlet</h2>
+      <button class="btn btn-white wide" id="outletBtn">🔌 Place outlet on map</button>
+      <p class="hint">Tap where your outdoor outlet is. We bring 100 ft of heavy-duty cord, and anything farther needs a generator.</p>
+    </section>
+
+    <section class="step">
+      <h2><span class="n">4</span>Your layout</h2>
+      <ul id="placed"></ul>
+      <button class="btn btn-orange wide" id="sendBtn">📨 Send my layout</button>
+    </section>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="banner" id="banner">Search your address, then add a rental</div>
+    <div class="map-tools">
+      <button class="btn btn-white" id="measureBtn">📏 Measure</button>
+    </div>
+    <div class="legend">
+      <div><span class="lg solid"></span>Rental footprint</div>
+      <div><span class="lg dash"></span>5 ft safety clearance</div>
+      <div><span class="lg cord"></span>100 ft cord reach</div>
+    </div>
+  </div>
+</main>
+
+<dialog id="sentDlg">
+  <h2>Layout ready! 🎉</h2>
+  <p id="sentAddr" style="font-weight:700"></p>
+  <ul id="sentList"></ul>
+  <p class="note">Mockup only, so nothing was sent. On the live site this would attach a snapshot of the layout to the booking so the crew knows exactly where to set up.</p>
+  <form method="dialog"><button class="btn btn-sun wide">Sounds good</button></form>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  // Sizes come from the Bounce Buddies FAQ (obstacle course is a placeholder size).
+  const UNITS = [
+    { id: 'bounce',   name: 'Bounce House',    w: 13, l: 13, color: '#f7b51d', emoji: '🏰' },
+    { id: 'combo',    name: 'Bounce Combo',    w: 13, l: 31, color: '#f08a12', emoji: '🎪' },
+    { id: 'slide',    name: 'Water Slide',     w: 20, l: 45, color: '#3aa8dc', emoji: '🌊' },
+    { id: 'obstacle', name: 'Obstacle Course', w: 10, l: 40, color: '#e0402f', emoji: '🏁' },
+  ];
+  const CLEARANCE_FT = 5, CORD_FT = 100, FT = 0.3048, M_PER_DEG = 111320;
+
+  const map = L.map('map', { zoomControl: true }).setView([39.1753, -84.2944], 17);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxNativeZoom: 19, maxZoom: 21, attribution: 'Imagery &copy; Esri'
+  }).addTo(map);
+
+  // --- geometry helpers: work in local feet around a center point ---
+  const cosLat = c => Math.cos(c.lat * Math.PI / 180);
+  const toLatLng = (c, x, y) => L.latLng(c.lat + y * FT / M_PER_DEG, c.lng + x * FT / (M_PER_DEG * cosLat(c)));
+  const toLocal = (c, p) => ({ x: (p.lng - c.lng) * M_PER_DEG * cosLat(c) / FT, y: (p.lat - c.lat) * M_PER_DEG / FT });
+  function rect(c, w, l, deg, pad = 0) {
+    const r = deg * Math.PI / 180, hw = w / 2 + pad, hl = l / 2 + pad;
+    return [[-hw, -hl], [hw, -hl], [hw, hl], [-hw, hl]].map(([x, y]) =>
+      toLatLng(c, x * Math.cos(r) + y * Math.sin(r), -x * Math.sin(r) + y * Math.cos(r)));
+  }
+  // Distance in feet from a point to the nearest edge of a rotated rectangle
+  function distToRect(item, p) {
+    const { x, y } = toLocal(item.center, p), r = item.rot * Math.PI / 180;
+    const lx = x * Math.cos(r) - y * Math.sin(r), ly = x * Math.sin(r) + y * Math.cos(r);
+    const dx = Math.max(Math.abs(lx) - item.unit.w / 2, 0), dy = Math.max(Math.abs(ly) - item.unit.l / 2, 0);
+    return Math.hypot(dx, dy);
+  }
+
+  // --- state ---
+  let items = [], selected = null, uid = 0, outlet = null, cordCircle = null, addressLabel = '';
+  const banner = document.getElementById('banner');
+  const showBanner = t => { banner.textContent = t; banner.hidden = !t; };
+
+  // --- picker ---
+  const picker = document.getElementById('picker');
+  UNITS.forEach(u => {
+    const b = document.createElement('button');
+    b.className = 'unit-btn'; b.style.setProperty('--c', u.color);
+    b.innerHTML = `<span class="emo">${u.emoji}</span><b>${u.name}</b><small>${u.w} × ${u.l} ft</small>`;
+    b.onclick = () => addUnit(u);
+    picker.appendChild(b);
+  });
+
+  function addUnit(unit) {
+    if (map.getZoom() < 19) map.setView(map.getCenter(), 19);
+    // Offset each new unit a little so they don't stack exactly
+    const off = (items.length % 4) * 12;
+    const item = { id: ++uid, unit, rot: 0, center: toLatLng(map.getCenter(), off, -off) };
+    item.buf = L.polygon([], { color: '#fff', weight: 2, dashArray: '6 6', fillColor: '#fff', fillOpacity: .12, interactive: false }).addTo(map);
+    item.foot = L.polygon([], { color: '#1b1f3b', weight: 3, fillColor: unit.color, fillOpacity: .75 }).addTo(map);
+    item.handle = L.marker(item.center, {
+      draggable: true, autoPan: true,
+      icon: L.divIcon({ className: 'handle', html: '<span>✥</span>', iconSize: [30, 30] })
+    }).addTo(map).bindTooltip(`${unit.name} · ${unit.w}×${unit.l} ft`, { permanent: true, direction: 'top', offset: [0, -16], className: 'tag' });
+    item.handle.on('drag', e => { item.center = e.target.getLatLng(); draw(item); updateStatus(); });
+    item.handle.on('mousedown touchstart', () => select(item));
+    item.foot.on('click', () => select(item));
+    items.push(item);
+    draw(item); select(item); renderList();
+    showBanner(outlet ? '' : 'Now mark your outlet so we can check cord reach');
+  }
+
+  function draw(item) {
+    item.foot.setLatLngs(rect(item.center, item.unit.w, item.unit.l, item.rot));
+    item.buf.setLatLngs(rect(item.center, item.unit.w, item.unit.l, item.rot, CLEARANCE_FT));
+    item.handle.setLatLng(item.center);
+  }
+
+  function select(item) {
+    selected = item;
+    items.forEach(i => i.foot.setStyle({ weight: i === item ? 4 : 2 }));
+    document.querySelectorAll('.item').forEach(el => el.classList.toggle('sel', +el.dataset.id === item.id));
+  }
+
+  function removeUnit(item) {
+    [item.foot, item.buf, item.handle].forEach(l => map.removeLayer(l));
+    items = items.filter(i => i !== item);
+    renderList();
+  }
+
+  // --- layout list ---
+  const list = document.getElementById('placed');
+  function renderList() {
+    list.innerHTML = '';
+    if (!items.length) { list.innerHTML = '<li class="empty">No rentals placed yet. Add one above!</li>'; return; }
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'item' + (item === selected ? ' sel' : '');
+      li.dataset.id = item.id; li.style.setProperty('--c', item.unit.color);
+      li.innerHTML = `
+        <div class="item-top"><span class="swatch"></span><b>${item.unit.name}</b><small>${item.unit.w}×${item.unit.l} ft</small>
+          <button class="x" title="Remove">✕</button></div>
+        <label class="rot">↻ Rotate <input type="range" min="0" max="180" step="5" value="${item.rot}"><output>${item.rot}°</output></label>
+        <div class="status"></div>`;
+      li.querySelector('.x').onclick = e => { e.stopPropagation(); removeUnit(item); };
+      const range = li.querySelector('input'), out = li.querySelector('output');
+      range.oninput = () => { item.rot = +range.value; out.textContent = item.rot + '°'; draw(item); updateStatus(); };
+      li.onclick = () => { select(item); map.panTo(item.center); };
+      list.appendChild(li);
+    });
+    updateStatus();
+  }
+
+  function updateStatus() {
+    items.forEach(item => {
+      const el = list.querySelector(`.item[data-id="${item.id}"] .status`);
+      if (!el) return;
+      if (!outlet) { el.className = 'status wait'; el.textContent = '🔌 Place your outlet to check power'; return; }
+      const d = Math.round(distToRect(item, outlet.getLatLng()));
+      if (d <= CORD_FT) { el.className = 'status ok'; el.textContent = `✓ Power reaches (${d} ft from outlet)`; }
+      else { el.className = 'status bad'; el.textContent = `✗ ${d} ft from outlet. Needs a generator.`; }
+    });
+  }
+
+  // --- outlet ---
+  const outletBtn = document.getElementById('outletBtn');
+  let mode = null; // 'outlet' | 'measure' | null
+  function setMode(m) {
+    mode = mode === m ? null : m;
+    map.getContainer().classList.toggle('placing', !!mode);
+    outletBtn.classList.toggle('on', mode === 'outlet');
+    measureBtn.classList.toggle('on', mode === 'measure');
+    if (mode === 'outlet') showBanner('Tap the map where your outlet is');
+    else if (mode === 'measure') { clearRuler(); showBanner('Tap two points to measure'); }
+    else { clearRuler(); showBanner(''); }
+  }
+  outletBtn.onclick = () => setMode('outlet');
+
+  function placeOutlet(latlng) {
+    if (!outlet) {
+      outlet = L.marker(latlng, { draggable: true, icon: L.divIcon({ className: 'outlet', html: '<span>🔌</span>', iconSize: [34, 34] }) })
+        .addTo(map).bindTooltip('Outlet', { direction: 'top', offset: [0, -18], className: 'tag' });
+      cordCircle = L.circle(latlng, { radius: CORD_FT * FT, color: '#4cc9f0', weight: 2, dashArray: '8 6', fillOpacity: .06, interactive: false }).addTo(map);
+      outlet.on('drag', e => { cordCircle.setLatLng(e.target.getLatLng()); updateStatus(); });
+      outletBtn.innerHTML = '🔌 Move outlet';
+    } else { outlet.setLatLng(latlng); cordCircle.setLatLng(latlng); }
+    updateStatus();
+  }
+
+  // --- measure ---
+  const measureBtn = document.getElementById('measureBtn');
+  measureBtn.onclick = () => setMode('measure');
+  let ruler = [];
+  function clearRuler() { ruler.forEach(l => map.removeLayer(l)); ruler = []; }
+  function measureClick(latlng) {
+    const pts = ruler.filter(l => l instanceof L.Marker);
+    if (pts.length >= 2) clearRuler();
+    const dot = L.marker(latlng, { icon: L.divIcon({ className: 'dot', html: '<span></span>', iconSize: [12, 12] }), interactive: false }).addTo(map);
+    ruler.push(dot);
+    const now = ruler.filter(l => l instanceof L.Marker);
+    if (now.length === 2) {
+      const [a, b] = now.map(m => m.getLatLng());
+      const ft = Math.round(map.distance(a, b) / FT);
+      const line = L.polyline([a, b], { color: '#ffc93c', weight: 4, dashArray: '2 8', lineCap: 'round', interactive: false }).addTo(map);
+      line.bindTooltip(`${ft} ft`, { permanent: true, direction: 'top', className: 'tag ruler' }).openTooltip(L.latLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2));
+      ruler.push(line);
+      showBanner('Tap again to start a new measurement');
+    }
+  }
+
+  map.on('click', e => {
+    if (mode === 'outlet') { placeOutlet(e.latlng); setMode('outlet'); showBanner(''); }
+    else if (mode === 'measure') measureClick(e.latlng);
+  });
+
+  // --- address search: Photon first (better with house numbers), Nominatim as fallback ---
+  async function geocode(q) {
+    try {
+      const r = await fetch(`https://photon.komoot.io/api/?limit=1&lat=39.17&lon=-84.29&q=${encodeURIComponent(q)}`);
+      const f = (await r.json()).features?.[0];
+      if (f) {
+        const p = f.properties;
+        const street = [p.housenumber, p.street].filter(Boolean).join(' ') || p.name;
+        return { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0], label: [street, p.city, p.state].filter(Boolean).join(', ') };
+      }
+    } catch {}
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=${encodeURIComponent(q)}`);
+    const [hit] = await r.json();
+    return hit ? { lat: +hit.lat, lng: +hit.lon, label: hit.display_name.split(',').slice(0, 3).join(',') } : null;
+  }
+
+  const msg = document.getElementById('searchMsg');
+  document.getElementById('search').onsubmit = async e => {
+    e.preventDefault();
+    const q = document.getElementById('addr').value.trim();
+    if (!q) return;
+    msg.className = 'hint'; msg.textContent = 'Searching…';
+    try {
+      const hit = await geocode(q);
+      if (!hit) throw new Error('none');
+      map.setView([hit.lat, hit.lng], 20);
+      addressLabel = hit.label;
+      msg.textContent = '📍 ' + addressLabel;
+      showBanner(items.length ? '' : 'Pick a rental to drop it in your yard');
+    } catch {
+      msg.className = 'hint err';
+      msg.textContent = "Couldn't find that address. Try adding the city and state.";
+    }
+  };
+
+  // --- send (mock) ---
+  document.getElementById('sendBtn').onclick = () => {
+    const dlg = document.getElementById('sentDlg');
+    document.getElementById('sentAddr').textContent = addressLabel ? '📍 ' + addressLabel : '📍 Address not searched yet';
+    const ul = document.getElementById('sentList');
+    ul.innerHTML = items.length ? '' : '<li>No rentals placed yet</li>';
+    items.forEach(i => {
+      const power = outlet ? (distToRect(i, outlet.getLatLng()) <= CORD_FT ? '✓ power OK' : '⚠ needs generator') : 'outlet not marked';
+      ul.insertAdjacentHTML('beforeend', `<li>${i.unit.emoji} ${i.unit.name}, rotated ${i.rot}° (${power})</li>`);
+    });
+    dlg.showModal();
+  };
+
+  renderList();
+</script>
+</body>
+</html>
